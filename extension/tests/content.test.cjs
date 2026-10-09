@@ -35,7 +35,7 @@ test('ordinary collapsed-state read failure stays handled and does not stop a va
  const h=harness({collapsedError:'Temporary storage failure'});await flush();await h.callbacks.onSettings();assert.equal(h.calls[0].type,'openOptions');assert.equal(h.cleared.length,0);
 });
 test('collapsed-state context invalidation is handled even during mount',async()=>{
- const h=harness({collapsedError:'Extension context invalidated.'});await flush();assert.deepEqual(h.cleared,[7]);assert.equal(h.messageListeners(),0);assert.match(h.mini.textContent,/перезагрузить игру/);
+ const h=harness({collapsedError:'Extension context invalidated.'});await flush();assert.deepEqual(h.cleared,[7]);assert.equal(h.messageListeners(),0);assert.equal(h.mini.textContent,require('../i18n.js').t('CRH Monitor обновлён · перезагрузить игру',C.defaults().language));
 });
 function background(){
  const calls=[];let handler;const chrome={runtime:{getURL:s=>'chrome-extension://testing-id/'+s,onMessage:{addListener:f=>{handler=f}},onInstalled:listeners(),onStartup:listeners(),openOptionsPage:async()=>{calls.push({open:true})}},storage:{local:{get:async()=>({settings:{...C.defaults(),wallet:w,language:"ru"}}),set:async value=>{calls.push(value)}}},alarms:{create:async()=>{},onAlarm:listeners()}};
