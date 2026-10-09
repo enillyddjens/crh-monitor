@@ -39,7 +39,7 @@ async function syncLedger(){
   if(ledgerBusy){ledgerQueued=true;return {ok:true,busy:true};}
   ledgerBusy=true;let w,ledger,cache={};
   try{
-    const x=await chrome.storage.local.get(["settings","ledgers","ethHistory"]);
+    const x=await chrome.storage.local.get(["settings","ledgers","ethHistory","history"]);
     w=C.cleanSettings(x.settings).wallet;
     if(!w)return {ok:true,needsWallet:true};
     ledger=x.ledgers?.[w]||{wallet:w,cursor:-1,records:[],complete:false};
@@ -68,7 +68,7 @@ async function syncLedger(){
         const decoded=L.decode(tx,receipt,w,time);
         if(decoded){
           const old=existing.get(id);
-          if(old?.blockHash===decoded.blockHash){decoded.totalUSD=old.totalUSD;decoded.gasUSD=old.gasUSD;decoded.usdSource=old.usdSource;decoded.priceUSD=old.priceUSD;}
+          if(old?.blockHash===decoded.blockHash){decoded.totalUSD=old.totalUSD;decoded.gasUSD=old.gasUSD;decoded.usdSource=old.usdSource;decoded.priceUSD=old.priceUSD;decoded.claimPriceUSD=old.claimPriceUSD;decoded.claimPriceSource=old.claimPriceSource;decoded.claimPriceAt=old.claimPriceAt;}
           await fillUSD(decoded,cache);chunk.push(decoded);
         }
       }
@@ -79,6 +79,8 @@ async function syncLedger(){
     }
     // Retry unavailable historical valuations without rescanning the chain.
     for(const r of records.filter(r=>(r.nativeWei&&r.totalUSD===null)||r.gasUSD===null).slice(-30))await fillUSD(r,cache);
+    const prices=await chrome.storage.local.get(["history","priceHistory"]);
+    records=L.claimPrices(records,[...(prices.history||[]),...(prices.priceHistory||[])]);
     ledger={...ledger,records,complete:true,status:"ready",progress:100,at:Date.now(),error:null};
     await saveLedger(w,ledger,cache);await enrichOrders(w,records);
     return {ok:true};

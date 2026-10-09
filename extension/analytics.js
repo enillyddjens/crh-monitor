@@ -1,0 +1,16 @@
+/* Account dilution and public activity metrics from recorded observations only. */
+(()=>{'use strict';
+ const C=globalThis.CRHMonitor||(typeof require==='function'?require('./shared.js'):null),P=globalThis.CRHProject||(typeof require==='function'?require('./project.js'):null);
+ function accountPoint(s){return s?.wallet&&s.totalHash>0&&s.myHash!==null?{wallet:s.wallet,at:s.seenAt,myHash:s.myHash,totalHash:s.totalHash,share:s.myHash/s.totalHash}:null;}
+ function save(raw,s,legacy=[]){const all={...(raw||{})},point=accountPoint(s);if(!point)return all;let rows=all[s.wallet];if(!rows){rows=[];for(const h of legacy.filter(h=>h.wallet===s.wallet&&h.at<=point.at&&h.totalHash>0&&h.myHash!==null).sort((a,b)=>a.at-b.at)){if(!rows.length||h.at-rows.at(-1).at>=600000)rows.push({wallet:s.wallet,at:h.at,myHash:h.myHash,totalHash:h.totalHash,share:h.myHash/h.totalHash});}}const last=rows.at(-1);if(last&&point.at-last.at<600000){all[s.wallet]=rows;return all;}all[s.wallet]=rows.filter(p=>p.at>=point.at-30*86400000).concat(point).slice(-5000);return Object.fromEntries(Object.entries(all).slice(-8));}
+ function summary(data,hours=24,now=Date.now()){
+  const w=C.cleanSettings(data.settings).wallet,p=P.clean(data.project),rows=(data.accountDynamics?.[w]?.length>1?data.accountDynamics[w]:(data.history||[]).filter(h=>h.wallet===w).map(h=>({...h,share:h.totalHash>0?h.myHash/h.totalHash:null}))).filter(p=>p.at<=now&&p.totalHash>0&&p.share!==null);
+  const current=accountPoint(data.games?.[w]);if(current&&current.at<=now&&current.at>(rows.at(-1)?.at??0))rows.push(current);
+  const own=P.delta(rows,'share',hours,now),first=own?rows.find(r=>r.at===own.start):null,last=rows.at(-1),fixedShare=first&&last?first.myHash/last.totalHash:null;
+  const boards=p.boards.hash.filter(b=>b.complete&&!b.stale&&b.seenAt<=now&&b.ranked!==null),latest=boards.at(-1),start=latest?latest.seenAt-hours*3600000:null,prior=boards.find(b=>b.seenAt>=start)||latest,rankedDelta=latest&&prior?latest.ranked-prior.ranked:null;
+  const events=[];for(let i=1;i<p.economy.length;i++){const a=p.economy[i-1],b=p.economy[i],dt=(b.at-a.at)/3600000;if(dt<=0||dt>.5||!(a.totalHash>0))continue;const pct=(b.totalHash/a.totalHash-1)*100,velocity=pct/dt;const past=[];for(let j=Math.max(1,i-6);j<i;j++){const x=p.economy[j-1],y=p.economy[j],d=(y.at-x.at)/3600000;if(d>0&&d<=.5&&x.totalHash>0)past.push(Math.max(0,(y.totalHash/x.totalHash-1)*100/d));}past.sort((a,b)=>a-b);const median=past[Math.floor(past.length/2)]??0;if(pct>=5&&velocity>=Math.max(20,median*2))events.push({at:b.at,hashPct:pct,hours:dt,velocity});}
+  let newcomers=null;if(boards.length>=2){const prev=P.unpackBoard(p,boards.at(-2)),curr=P.unpackBoard(p,latest),ids=new Set(prev.rows.map(r=>r.id));newcomers=curr.rows.filter(r=>!ids.has(r.id)).length;}
+  return{rows,own,share:last?.share??null,sharePoints:own?((own.current-own.before)*100):null,dilutionPct:first?.share>0&&fixedShare!==null?(1-fixedShare/first.share)*100:null,ranked:latest?.ranked??null,rankedDelta,rankedFrom:prior?.seenAt??null,rankedAt:latest?.seenAt??null,newcomers,spikes:events.filter(e=>e.at>=now-hours*3600000).slice(-10).reverse()};
+ }
+ const api={accountPoint,save,summary};globalThis.CRHAnalytics=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;
+})();

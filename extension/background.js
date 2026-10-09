@@ -1,4 +1,4 @@
-importScripts("shared.js","ledger.js","project.js");
+importScripts("shared.js","ledger.js","project.js","price-feed.js","analytics.js");
 const C=CRHMonitor,P=CRHProject;
 importScripts("ledger-sync.js");
 let rpcId=0,refreshing=false,refreshQueued=false,gameWrites=Promise.resolve();
@@ -13,6 +13,16 @@ async function rpc(method,params){
   const data=await r.json();
   if(data.error||!("result" in data))throw new Error(data.error?.message||"RPC не вернул корректный ответ");
   return data.result;
+}
+let priceBusy=false;
+async function refreshPrice(){
+ if(priceBusy)return {ok:true,busy:true};priceBusy=true;
+ try{
+  const res=await fetch(CRHPrice.API,{signal:AbortSignal.timeout(12000),credentials:"omit"});if(!res.ok)throw Error("DEX HTTP "+res.status);
+  const sample=CRHPrice.quote(await res.json());if(!sample)throw Error("No verified CRH quote");
+  const x=await chrome.storage.local.get("priceHistory");await chrome.storage.local.set({priceHistory:CRHPrice.append(x.priceHistory,sample),priceFeed:{...sample,error:null}});return {ok:true};
+ }catch(e){const x=await chrome.storage.local.get("priceFeed");await chrome.storage.local.set({priceFeed:{...x.priceFeed,error:String(e.message).slice(0,100),failedAt:Date.now()}});return {ok:false};}
+ finally{priceBusy=false;}
 }
 const balanceData=w=>"0x70a08231"+w.slice(2).padStart(64,"0");
 async function refreshWallet(){
@@ -47,7 +57,7 @@ async function acceptSnapshot(raw,sender){
   if(!sender.tab||!sender.url?.startsWith("https://www.computersrh.xyz/"))return {ok:false};
   const s=C.validateSnapshot(raw);
   if(!s||!s.seenAt||Math.abs(Date.now()-s.seenAt)>10000)return {ok:false};
-  const x=await chrome.storage.local.get(["games","market","history","settings","project","chain"]);
+  const x=await chrome.storage.local.get(["games","market","history","settings","project","chain","accountDynamics"]);
   const games=x.games||{};
   if(games[s.wallet]?.seenAt>s.seenAt)return {ok:true};
   games[s.wallet]=s;
@@ -55,8 +65,8 @@ async function acceptSnapshot(raw,sender){
   const history=x.history||[];
   const last=history.findLast?.(v=>v.wallet===s.wallet);
   if(!last||s.seenAt-last.at>=60000)
-    history.push({wallet:s.wallet,at:s.seenAt,priceUSD:s.priceUSD,totalHash:s.totalHash,myHash:s.myHash,budgetWei:s.budgetWei,claimableWei:s.claimableWei,spentUSD:s.spentUSD,hourlyWei:s.hourlyWei});
-  const update={games:Object.fromEntries(sorted),history:history.slice(-2880),project:P.saveEconomy(x.project,s,x.chain)};
+    history.push({wallet:s.wallet,at:s.seenAt,priceUSD:s.priceUSD,priceQuotable:s.priceQuotable,totalHash:s.totalHash,myHash:s.myHash,budgetWei:s.budgetWei,claimableWei:s.claimableWei,spentUSD:s.spentUSD,hourlyWei:s.hourlyWei});
+  const update={accountDynamics:CRHAnalytics.save(x.accountDynamics,s,x.history||[]),games:Object.fromEntries(sorted),history:history.slice(-2880),project:P.saveEconomy(x.project,s,x.chain)};
   const settings=C.cleanSettings(x.settings);if(!settings.wallet)update.settings={...settings,wallet:s.wallet};
   if(!x.market||s.seenAt>=x.market.seenAt)update.market=s;
   await chrome.storage.local.set(update);
@@ -105,7 +115,7 @@ chrome.runtime.onMessage.addListener((m,sender,send)=>{
   if(m?.type==="order"){gameWrites=gameWrites.catch(()=>{}).then(()=>acceptOrder(m.order,sender));gameWrites.then(send,()=>send({ok:false}));return true;}
   // Only extension-owned UI can request RPC/settings operations.
   if(!sender.url?.startsWith(chrome.runtime.getURL("")))return;
-  if(m?.type==="refreshWallet"){refreshWallet().then(send);syncLedger();return true;}
+  if(m?.type==="refreshWallet"){refreshWallet().then(send);refreshPrice().then(()=>syncLedger());return true;}
   if(m?.type==="syncLedger"){syncLedger().then(send);return true;}
   if(m?.type==="saveCorrection"){const v=L.sanitizeCorrection(m.correction);if(!v){send({ok:false});return;}chrome.storage.local.get(["corrections","ledgers"]).then(async x=>{const r=x.ledgers?.[v.wallet]?.records?.find(r=>r.id===v.id);if(!r||r.direction>0&&["sell","game","withdrawal"].includes(v.type)||r.direction<0&&["buy","reward"].includes(v.type)){send({ok:false});return;}await chrome.storage.local.set({corrections:{...(x.corrections||{}),[v.wallet]:{...(x.corrections?.[v.wallet]||{}),[v.id]:v}}});send({ok:true})}).catch(()=>send({ok:false}));return true;}
   if(m?.type==="saveSettings"){
@@ -113,8 +123,8 @@ chrome.runtime.onMessage.addListener((m,sender,send)=>{
     return true;
   }
 });
-chrome.runtime.onInstalled.addListener(()=>storeDefaults().then(()=>Promise.allSettled([refreshWallet(),syncLedger()])));
-chrome.runtime.onStartup.addListener(()=>storeDefaults().then(()=>Promise.allSettled([refreshWallet(),syncLedger()])));
+chrome.runtime.onInstalled.addListener(()=>storeDefaults().then(()=>Promise.allSettled([refreshWallet(),refreshPrice().then(()=>syncLedger())])));
+chrome.runtime.onStartup.addListener(()=>storeDefaults().then(()=>Promise.allSettled([refreshWallet(),refreshPrice().then(()=>syncLedger())])));
 async function refreshGameTabs(){const tabs=await chrome.tabs.query({url:"https://www.computersrh.xyz/*"});await Promise.allSettled(tabs.map(t=>chrome.tabs.sendMessage(t.id,{type:"refreshGame"})));}
-chrome.alarms.onAlarm.addListener(a=>{if(a.name==="crh-wallet")Promise.allSettled([refreshWallet(),refreshGameTabs(),syncLedger()])});
+chrome.alarms.onAlarm.addListener(a=>{if(a.name==="crh-wallet")Promise.allSettled([refreshWallet(),refreshGameTabs(),refreshPrice().then(()=>syncLedger())])});
 storeDefaults().catch(()=>{});

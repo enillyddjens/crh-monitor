@@ -41,10 +41,12 @@
   function slots(raw={}) {
     const out={};for(const key of ['case','board','motherboard','cpu','gpu','ram','ssd','psu','cooler','cpu_cooler','fans','fan','case_fans','system']){const v=raw?.[key];if(itemId(v))out[key]=v;else if(Array.isArray(v))out[key]=v.map(itemId).filter(Boolean).slice(0,16);}return out;
   }
-  const pcs=v=>Array.isArray(v)?v.slice(0,8).filter(p=>itemId(p?.id)).map(p=>({id:p.id,plot:number(p.plot),ready:p.ready===true,running:p.running===true,powered:p.powered===true,hash:number(p.hash),watts:number(p.watts),cpuC:number(p.cpuC),gpuC:number(p.gpuC),thermalLossPct:number(p.thermalLossPct),wearLossPct:number(p.wearLossPct),autoPaste:{cpu:p.autoPaste?.cpu===true,gpu:p.autoPaste?.gpu===true},slots:slots(p.slots),towerSlots:slots(p.towerSlots)})):[];
+  const pcs=v=>Array.isArray(v)?v.slice(0,8).filter(p=>itemId(p?.id)).map(p=>({id:p.id,plot:number(p.plot),ready:p.ready===true,running:p.running===true,powered:p.powered===true,hash:number(p.hash),healthyHash:number(p.healthyHash),watts:number(p.watts),cpuC:number(p.cpuC),gpuC:number(p.gpuC),thermalLossPct:number(p.thermalLossPct),wearLossPct:number(p.wearLossPct),autoPaste:{cpu:p.autoPaste?.cpu===true,gpu:p.autoPaste?.gpu===true},slots:slots(p.slots),towerSlots:slots(p.towerSlots)})):[];
   const items=v=>Array.isArray(v)?v.slice(0,4000).filter(p=>itemId(p?.id)&&itemId(p?.catalog)).map(p=>({id:p.id,catalog:p.catalog,installedSetup:itemId(p.installedSetup??p.installed_setup),installedSlot:itemId(p.installedSlot??p.installed_slot),wearMs:number(p.wearMs??p.wear_ms),cpuPasteAgeMs:number(p.cpuPasteAgeMs??p.cpu_paste_age_ms),gpuPasteAgeMs:number(p.gpuPasteAgeMs??p.gpu_paste_age_ms),fanAgeMs:number(p.fanAgeMs??p.fan_age_ms),conditionPct:number(p.conditionPct??p.condition_percent),repairUSD:number(p.repairUSD)??(number(p.repair_usd_micro)===null?null:Number(p.repair_usd_micro)/1e6),serviceUSD:number(p.serviceUSD)??(number(p.service_usd_micro)===null?null:Number(p.service_usd_micro)/1e6)})):[];
   const powerLevels=v=>Array.isArray(v)?v.slice(0,14).map(p=>({level:number(p.level),capacityW:number(p.capacityW??p.capacity_w),minutes:number(p.minutes),state:short(p.state)})).filter(p=>p.level!==null&&p.capacityW!==null):[];
 
+  const constructionLevels=v=>Array.isArray(v)?v.slice(0,14).map(p=>({level:number(p.level??p.plot),capacityW:number(p.capacityW??p.capacity_w),minutes:number(p.minutes),minHall:number(p.minHall??p.min_island_level),minPlots:number(p.minPlots??p.min_plots),bonusPct:number(p.bonusPct)??(number(p.total_bonus_bps)===null?null:Number(p.total_bonus_bps)/100),hashCap:number(p.hashCap)??(number(p.pc_hash_cap_micro)===null?null:Number(p.pc_hash_cap_micro)/1e6),usd:number(p.usd)??(number(p.usd_micro)===null?null:Number(p.usd_micro)/1e6),baseUSD:number(p.baseUSD)??(number(p.price_base_usd_micro)===null?null:Number(p.price_base_usd_micro)/1e6),perHashUSD:number(p.perHashUSD)??(number(p.price_usd_micro_per_hs)===null?null:Number(p.price_usd_micro_per_hs)/1e6),state:short(p.state)})).filter(p=>p.level!==null):[];
+  const limits=v=>Array.isArray(v)?v.slice(0,40).map(p=>({id:itemId(p.id),owned:number(p.owned),max:number(p.max)})).filter(p=>p.id):[];
   function sanitizeState(raw) {
     if (!raw || typeof raw !== "object" || !wallet(raw.wallet)) return null;
     if (Number(raw.chain_id)!==4663 || wallet(raw.token)!==TOKEN.toLowerCase()) return null;
@@ -82,9 +84,10 @@
       builderEnd:number(builder.current?.ends_at),builderQueueEnd:number(builder.finishes_at),
       builderName:short(builder.current?.name),queued:number(builder.queue_length),
       builderJobs:jobs([builder.current,...(builder.queue||[])]),openPlots:number(raw.island?.plots),
-      economyRevision:short(raw.economy_revision??i.economy_revision),hashRecord:number(i.hash_record??raw.island?.hash_record_hs),
+      economyRevision:short(raw.economy_revision??i.economy_revision),hashRecord:number(i.hash_record??raw.island?.hash_record_hs)??(number(raw.hash_record_micro)===null?null:Number(raw.hash_record_micro)/1e6),
       projectedHall:number(raw.progression?.projected?.island_level),projectedPlots:number(raw.progression?.projected?.plots),powerLevels:powerLevels(raw.progression?.power_levels),
-      pcs:pcs(Object.entries(raw.setups||{}).slice(0,8).map(([id,p])=>{const s=raw.stats?.setups?.[id]||{};return {id,plot:number(p.plot)===null?null:Number(p.plot)+1,ready:s.ready,running:s.running,powered:p.powered,hash:number(s.hashrate_micro)===null?number(s.hashrate):Number(s.hashrate_micro)/1e6,watts:number(s.power_w),cpuC:s.thermal?.cpu_c??s.cpu_c,gpuC:s.thermal?.gpu_c??s.gpu_c,thermalLossPct:number(s.thermal_loss_percent)??(number(s.thermal?.loss_bps)===null?null:Number(s.thermal.loss_bps)/100),wearLossPct:s.maintenance_loss_percent,autoPaste:p.auto_paste,slots:p.slots,towerSlots:p.tower_slots};})),items:items(raw.items)
+      construction:{power:constructionLevels(raw.progression?.power_levels),plots:constructionLevels(raw.progression?.plots),hall:constructionLevels(raw.progression?.island_levels)},packageLimits:limits(Object.entries(raw.island?.package_limits||{}).map(([id,p])=>({id,...p}))),
+      pcs:pcs(Object.entries(raw.setups||{}).slice(0,8).map(([id,p])=>{const s=raw.stats?.setups?.[id]||{};return {id,plot:number(p.plot)===null?null:Number(p.plot)+1,ready:s.ready,running:s.running,powered:p.powered,hash:number(s.hashrate_micro)===null?number(s.hashrate):Number(s.hashrate_micro)/1e6,healthyHash:number(s.healthy_base_hashrate)??(number(s.parts_hashrate)>0&&number(s.efficiency_multiplier)>0?Number(s.parts_hashrate)*Number(s.efficiency_multiplier):null),watts:number(s.power_w),cpuC:s.thermal?.cpu_c??s.cpu_c,gpuC:s.thermal?.gpu_c??s.gpu_c,thermalLossPct:number(s.thermal_loss_percent)??(number(s.thermal?.loss_bps)===null?null:Number(s.thermal.loss_bps)/100),wearLossPct:s.maintenance_loss_percent,autoPaste:p.auto_paste,slots:p.slots,towerSlots:p.tower_slots};})),items:items(raw.items)
     };
   }
   function validateSnapshot(s) {
@@ -98,6 +101,7 @@
     weis.forEach(k=>out[k]=wei(s[k]));
     ["priceQuotable","rateConfirmed","running","claimBlocked"].forEach(k=>out[k]=s[k]===true);
     out.rateChange=s.rateChange?{rateBps:number(s.rateChange.rateBps),startsAt:number(s.rateChange.startsAt)}:null;
+    out.construction={power:constructionLevels(s.construction?.power),plots:constructionLevels(s.construction?.plots),hall:constructionLevels(s.construction?.hall)};out.packageLimits=limits(s.packageLimits);
     out.builderJobs=jobs(s.builderJobs);out.powerLevels=powerLevels(s.powerLevels);out.pcs=pcs(s.pcs);out.items=items(s.items);
     return out;
   }

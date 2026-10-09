@@ -1,4 +1,4 @@
-# CRH Monitor 1.3.0
+# CRH Monitor 1.4.0
 
 An independent, read-only browser extension for **Computers RH**. Track your CRH position and follow the game's economy without keeping a spreadsheet.
 
@@ -10,7 +10,7 @@ An independent, read-only browser extension for **Computers RH**. Track your CRH
 
 ## Install
 
-1. Download **crh-monitor-v1.3.0.zip** from GitHub Releases and extract it.
+1. Download **crh-monitor-v1.4.0.zip** from GitHub Releases and extract it.
 2. Open `chrome://extensions` or `edge://extensions` and enable **Developer mode**.
 3. Choose **Load unpacked** and select the extracted **crh-monitor** folder containing `manifest.json`.
 4. Pin the extension icon and reload your [Computers RH game tab](https://www.computersrh.xyz/play/island).
@@ -27,7 +27,9 @@ Click the icon for the popup, ⚙ for the full dashboard, or use the overlay at 
 - **Daily net income:** current mining rate minus electricity and your configured costs.
 - **Game payback:** the cash still to recover divided by current daily net income.
 - **Transactions:** CRH buys, game payments, reward claims, execution prices and recorded order quotes.
-- **Project:** economy charts, hourly snapshots of both top-100 leaderboards, change events and player tooltips.
+- **Initial investment / Investment + reinvestment:** separate external funding from rewards spent in the game.
+- **Analytics / Budget:** dilution, project activity and scenario comparisons.
+- **Analytics archive:** economy charts, hourly snapshots of both top-100 leaderboards, change events and player tooltips.
 
 Detailed pool, hash, power, energy and build-queue information stays in expandable sections. Choose your selling fee, PC-care reserve and gas budget in settings. The default **3% selling fee is an assumption**, not a detected market fee.
 
@@ -55,6 +57,26 @@ Hover a player in the extension or the game's own leaderboard. The tooltip shows
 The current API normally provides **spent_x, in CRH**, rather than historical USD spending. Multiplying this by a current or captured token price is a **valuation of the spent tokens**, not proof of dollars deposited. If an explicit `spent_usd_micro` value is supplied, it is labeled **in-game spending**, which still differs from the player's original cash purchase of CRH.
 
 The **ready-PC equivalent** is an illustrative range: `hash × catalog $/H/s`, allowing for an assumed 0–84% island bonus and up to 50% speed loss. It excludes construction, energy, care and idle inventory. Custom builds can be cheaper than ready PCs. It is neither a guaranteed lower/upper bound on real spending nor a recovered investment total. No estimate appears until the extension observes a PC catalog response.
+
+## Investment, reinvestment and claim prices
+
+**Initial investment** is the historical USD cost of external CRH purchases, including top-ups. **Investment + reinvestment** adds the reward-funded share of every confirmed game payment: hardware, construction, electricity, care and other shop purchases. It does not add the same purchased tokens a second time. A mixed balance consumes purchased and reward tokens proportionally, using a moving average; token provenance is an accounting estimate.
+
+The reinvestment details show rewards at claim prices, their value when spent and the difference. **Result before reinvestment** is Project PnL plus rewards subsequently spent in the game. It is a result before those expenses, not withdrawable money or hardware resale value. Project PnL itself is unchanged.
+
+Game execution prices are automatic: confirmed USD order value divided by CRH paid. Claim market prices are estimated from the nearest saved game quote, a confirmed game payment or a validated DEX Screener CRH quote within **60 seconds** of the claim. The source and time offset are shown. The extension records DEX quotes about once per minute, selecting the most liquid eligible Robinhood pool with the exact CRH base-token address; quotes can lag market activity. DEX quotes are retained for up to 30 days locally. Today's price is never used for a past claim. Missing historical prices leave the FX calculation unavailable; they do not prevent payment-based reinvest totals. Manual corrections are optional.
+
+The public [DEX Screener API](https://docs.dexscreener.com/api/reference) provides current quotes, not a historical-candle endpoint. Old claims are recovered only where recorded contemporaneous data exists. Account exports now include investment summaries, price observations and account-position history.
+
+## Analytics and budget planner
+
+**Analytics** adds personal-share history, ranked-island growth, new entries in the top 100 and detected hash-activity spikes. **Dilution at unchanged personal hash** isolates the effect of project growth from your own upgrades. A negative dilution means the project shrank and your hypothetical share increased. Ranked islands are not unique humans; entering the top 100 does not prove a new account. Spikes require adjacent observations no more than 30 minutes apart, so collection gaps do not create false bursts. Account-position observations are sampled every 10 minutes and retained up to 30 days for each wallet.
+
+In **Budget**, enter an available USD budget and a 1–30 day horizon. The planner compares ready PCs, the same verified recipes assembled from parts, inventory reuse, replacements, on/off decisions and builder upgrades. It uses observed server prices, timing, Hall/plot prerequisites, hash-record pricing, shared grid reservation and matching bonuses. It reserves energy, care and estimated gas for the full horizon; projected rewards do not finance further actions. Included card energy is credited only against electricity. Planned purchases start after the current paid builder queue.
+
+The displayed result is **incremental profit/loss versus keeping the current PCs**, after new hardware and construction costs. Care assumes paste at 80% lifetime, cleaning every 48 hours and repairs every 14 days, with 92.5% average speed for newly installed PCs. Selling fees come from settings; gas is estimated from known game payments and claims. The scenario controls set price change, other-island hash growth and daily reward-budget change. Default 10% daily hash growth is an assumption; the default reward decline uses the observed release rate without replenishments. Future rule changes, outside pool replenishments, referral bonuses, market depth and slippage are not predicted.
+
+The bounded search compares up to 18 actions with 60 candidates retained at each stage. It returns the best found plans and can recommend no new purchase. It is **not a proven global optimum**; it does not search arbitrary component swaps within a recipe. Incomplete/stale catalog, progression or care data blocks a recommendation. The catalog is refreshed with the hourly game reads. The main recommendation stays visible; alternatives and model details are expandable. The planner never initiates purchases or wallet actions.
 
 ## PnL and payback
 
@@ -102,7 +124,7 @@ After two minutes without fresh game data, claimable rewards are excluded from P
 
 Settings, account observations, transactions, corrections and public project snapshots stay in **this browser profile**. No analytics or developer backend is used. The extension does not read a seed phrase, connect to `window.ethereum`, sign transactions or initiate buys, claims or approvals. Session headers remain inside the game-page bridge for its GET requests; they are never saved or exported.
 
-Host access is limited to the game, Robinhood's public RPC and Coinbase's public candle API. The RPC receives public wallet queries. Coinbase receives market/time requests without your wallet address. Browser `storage`, `alarms` and `unlimitedStorage` permissions support local collection; retention is still bounded as described above.
+Host access is limited to the game, Robinhood's public RPC, Coinbase's public candle API and DEX Screener's public quote API. DEX Screener receives the public CRH contract address, not your wallet. The RPC receives public wallet queries. Coinbase receives market/time requests without your wallet address. Browser `storage`, `alarms` and `unlimitedStorage` permissions support local collection; retention is still bounded as described above.
 
 Account exports contain the selected wallet's public transactions and game data. Project exports contain public ranking names and observations. Treat your own exports as personal data. Release packages and promotional media contain no user HAR files, session material or real account histories. All financial examples in media are marked **DEMO DATA**.
 

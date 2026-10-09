@@ -73,27 +73,100 @@
     if(!v||!hash(v.id)||!C.wallet(v.wallet))return null;
     const type=["buy","sell","game","reward","incoming","outgoing","withdrawal"].includes(v.type)?v.type:null;
     return {id:hash(v.id),wallet:C.wallet(v.wallet),type,label:typeof v.label==="string"?v.label.trim().slice(0,100):null,
-      totalUSD:C.number(v.totalUSD),gasUSD:C.number(v.gasUSD)};
+      totalUSD:C.number(v.totalUSD),gasUSD:C.number(v.gasUSD),
+      claimPriceUSD:C.number(v.claimPriceUSD)>0?C.number(v.claimPriceUSD):null,
+      spendKind:["capital","operating"].includes(v.spendKind)?v.spendKind:null};
   }
   function effective(record,correction,order){
     const r={...record,labelIsCustom:false};
-    if(order?.wallet===r.wallet&&order.id===r.orderId){r.label=order.label||r.label;r.quotePriceUSD=order.quotePriceUSD??null;}
+    if(order?.wallet===r.wallet&&order.id===r.orderId){r.label=order.label||r.label;r.quotePriceUSD=order.quotePriceUSD??null;r.spendKind=spendKind(order);r.spendKindSource=r.spendKind?"order":null;}
     if(correction?.wallet===r.wallet&&correction.id===r.id){
       if(correction.type&&(r.direction>0?["buy","reward","incoming"]:["sell","game","withdrawal","outgoing"]).includes(correction.type)){r.type=correction.type;if(r.type==="reward")r.totalUSD=0;}
       if(correction.label){r.label=correction.label;r.labelIsCustom=true;}
       if(correction.totalUSD!==null&&correction.totalUSD!==undefined){r.totalUSD=correction.totalUSD;r.usdSource="manual";}
       if(correction.gasUSD!==null&&correction.gasUSD!==undefined)r.gasUSD=correction.gasUSD;
+      if(r.type==="reward"&&C.number(correction.claimPriceUSD)>0){r.claimPriceUSD=correction.claimPriceUSD;r.claimPriceSource="manual";r.claimPriceAt=r.at;}
+      if(r.type==="game"&&["capital","operating"].includes(correction.spendKind)){r.spendKind=correction.spendKind;r.spendKindSource="manual";}
     }
+    if(r.type==="reward")r.totalUSD=0;
     r.priceUSD=r.totalUSD!==null&&r.type!=="reward"?r.totalUSD/C.units(r.quantityWei):null;
     return r;
+  }
+  // No source claim is possible for fungible CRH: all outflows consume each funding pool proportionally.
+  function spendKind(order){
+    if(["build","buy_prebuilt","choose_starter"].includes(order?.action))return "capital";
+    if(["energy_refill","energy_buy","buy_paste","repair","service"].includes(order?.action))return "operating";
+    // Generic shop/cart actions may contain hardware, cosmetics or both. Require a manual category.
+    return null;
+  }
+  function claimPrices(records,observations=[]){
+    const quotes=[];
+    for(const s of observations||[])if(Number.isFinite(s.at)&&s.priceUSD>0&&Number.isFinite(s.priceUSD)&&s.priceQuotable!==false){
+      if(C.wallet(s.wallet))quotes.push({wallet:C.wallet(s.wallet),at:s.at,price:s.priceUSD,source:"observed-near-claim"});
+      else if(s.source==="dexscreener"&&s.chainId==="robinhood"&&C.wallet(s.token)===C.TOKEN.toLowerCase())quotes.push({wallet:null,at:s.at,price:s.priceUSD,source:"dexscreener-near-claim"});
+    }
+    for(const r of records)if(r.type==="game"&&r.totalUSD>0&&C.units(r.quantityWei)>0&&Number.isFinite(r.at))
+      quotes.push({wallet:r.wallet,at:r.at,price:r.totalUSD/C.units(r.quantityWei),source:"payment-near-claim"});
+    return records.map(record=>{
+      if(record.type!=="reward")return record;
+      const r={...record};
+      if(!(C.number(r.claimPriceUSD)>0)){
+        const nearby=r.at?quotes.filter(q=>(q.wallet===r.wallet||q.wallet===null)&&Math.abs(q.at-r.at)<=60000)
+          .sort((a,b)=>Math.abs(a.at-r.at)-Math.abs(b.at-r.at)||(a.source==="observed-near-claim"?-1:1)):[];
+        const q=nearby[0];r.claimPriceUSD=q?.price??null;r.claimPriceSource=q?.source??null;r.claimPriceAt=q?.at??null;
+      }
+      r.claimValueUSD=r.claimPriceUSD>0?C.units(r.quantityWei)*r.claimPriceUSD:null;
+      return r;
+    });
+  }
+  function reinvestment(rows){
+    let inventoryQty=0,rewardQty=0,unknownMarkQty=0,rewardMark=0,valid=true;
+    let claimedKnownUSD=0,claimsMissing=0,claimedQty=0,reinvestUSD=0,reinvestKnownClaimUSD=0,reinvestMissingMarkQty=0,operatingRewardUSD=0,uncategorizedRewardUSD=0;
+    const issues=[];
+    for(const r of rows){
+      const qty=C.units(r.quantityWei);
+      if(!(qty>0)||!Number.isFinite(qty)){valid=false;continue;}
+      if(r.direction>0){
+        inventoryQty+=qty;
+        if(r.type==="reward"){
+          claimedQty+=qty;rewardQty+=qty;
+          if(r.claimValueUSD!==null&&Number.isFinite(r.claimValueUSD)){rewardMark+=r.claimValueUSD;claimedKnownUSD+=r.claimValueUSD;}
+          else{unknownMarkQty+=qty;claimsMissing++;}
+        }else if(r.type!=="buy"||r.totalUSD===null)valid=false;
+        continue;
+      }
+      if(qty>inventoryQty+Math.max(1e-8,inventoryQty*1e-10))valid=false;
+      const fraction=inventoryQty>0?Math.min(1,qty/inventoryQty):0;
+      const rewardSpent=rewardQty*fraction,markSpent=rewardMark*fraction,missingSpent=unknownMarkQty*fraction;
+      if(r.type==="game"){
+        r.rewardFundingPct=qty>0?rewardSpent/qty*100:0;
+        r.rewardSpendUSD=r.totalUSD!==null?r.totalUSD*(rewardSpent/qty):null;
+        r.rewardClaimUSD=missingSpent>1e-8?null:markSpent;
+        r.rewardFX=r.rewardSpendUSD!==null&&r.rewardClaimUSD!==null?r.rewardSpendUSD-r.rewardClaimUSD:null;
+        if(r.rewardSpendUSD===null)valid=false;
+        else{
+          reinvestUSD+=r.rewardSpendUSD;reinvestKnownClaimUSD+=markSpent;reinvestMissingMarkQty+=missingSpent;
+          if(r.spendKind==="operating")operatingRewardUSD+=r.rewardSpendUSD;
+          else if(!r.spendKind)uncategorizedRewardUSD+=r.rewardSpendUSD;
+        }
+      }else if(!["sell","withdrawal"].includes(r.type))valid=false;
+      inventoryQty=Math.max(0,inventoryQty-qty);rewardQty=Math.max(0,rewardQty-rewardSpent);
+      unknownMarkQty=Math.max(0,unknownMarkQty-missingSpent);rewardMark=Math.max(0,rewardMark-markSpent);
+    }
+    const complete=valid&&!issues.length,claimBasisKnown=reinvestMissingMarkQty<=1e-8;
+    return {complete,issues,method:"proportional-average",reinvestUSD:valid?reinvestUSD:null,
+      reinvestClaimUSD:valid&&claimBasisKnown?reinvestKnownClaimUSD:null,
+      reinvestFX:valid&&claimBasisKnown?reinvestUSD-reinvestKnownClaimUSD:null,
+      claimedQty,claimedUSD:claimsMissing?null:claimedKnownUSD,claimedKnownUSD,claimsMissing,
+      operatingRewardUSD:valid?operatingRewardUSD:null,uncategorizedRewardUSD:valid?uncategorizedRewardUSD:null};
   }
   function claimableAt(ledger,amount,observedAt){
     if(amount===null||!observedAt)return null;
     // Do not count old unclaimed rewards after a newer on-chain payout already entered the wallet.
     return (ledger?.records||[]).some(r=>r.type==="reward"&&r.at>observedAt)?null:amount;
   }
-  function analyze(ledger,corrections={},orders={},balanceWei=null,claimable=null,price=null){
-    const rows=(ledger?.records||[]).map(r=>effective(r,corrections[r.id],orders[r.orderId])).sort((a,b)=>a.block-b.block||(a.index??0)-(b.index??0)||a.id.localeCompare(b.id));
+  function analyze(ledger,corrections={},orders={},balanceWei=null,claimable=null,price=null,observations=[]){
+    const rows=claimPrices((ledger?.records||[]).map(r=>effective(r,corrections[r.id],orders[r.orderId])),observations).sort((a,b)=>a.block-b.block||(a.index??0)-(b.index??0)||a.id.localeCompare(b.id));
     const issues=[];let buys=0,sales=0,gameSpend=0,gas=0,boughtQty=0,boughtCost=0,inventory=0n;
     let inventoryQty=0,inventoryCost=0,realized=0,gameFX=0,unresolvedGas=false;
     for(const r of rows){
@@ -118,13 +191,18 @@
     const walletValue=C.units(balanceWei)!==null&&price!==null?C.units(balanceWei)*price:null;
     const claimValue=claimable!==null&&price!==null?claimable*price:0;
     const ready=!!ledger?.complete&&!ledger?.error&&!issues.length&&balanceMatches&&walletValue!==null;
+    const reinvest=reinvestment(rows),pnl=ready?walletValue+claimValue+sales-buys-gas:null;
+    const investmentReady=!!ledger?.complete&&!ledger?.error&&!issues.length;
     return {rows,issues,ready,balanceMatches,buys,sales,gameSpend,gas,boughtQty,
+      initialInvestment:investmentReady?buys:null,
+      totalInvestment:investmentReady&&reinvest.complete?buys+reinvest.reinvestUSD:null,
+      pnlWithReinvest:ready&&reinvest.complete?pnl+reinvest.reinvestUSD:null,reinvest,
       averageBuy:boughtQty>0&&!issues.length?boughtCost/boughtQty:null,
-      pnl:ready?walletValue+claimValue+sales-buys-gas:null,
+      pnl,
       realized:ready?realized:null,unrealized:ready?walletValue-inventoryCost+claimValue:null,
       gameFX:ready?gameFX:null,unresolvedGas,claimIncluded:claimable!==null,
       inventoryWei:inventory.toString(),walletValue,claimValue};
   }
-  const api={SHOP,PONS,TRANSFER,USDG,WETH,hash,hex,netTransfers,decode,sanitizeCorrection,effective,claimableAt,analyze};
+  const api={SHOP,PONS,TRANSFER,USDG,WETH,hash,hex,netTransfers,decode,sanitizeCorrection,effective,spendKind,claimPrices,reinvestment,claimableAt,analyze};
   globalThis.CRHLedger=api;if(typeof module!=="undefined"&&module.exports)module.exports=api;
 })();

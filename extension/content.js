@@ -33,7 +33,7 @@
     if(snapshot)extensionCall(()=>chrome.runtime.sendMessage({type:"snapshot",snapshot}));
   }
   async function load(){
-    const next=await extensionCall(()=>chrome.storage.local.get(["settings","games","market","chain","history","ledgers","orders","corrections","project"]));
+    const next=await extensionCall(()=>chrome.storage.local.get(["settings","games","market","chain","history","ledgers","orders","corrections","project","priceHistory","priceFeed","accountDynamics","plannerPrefs"]));
     if(next&&!stopped){data=next;render();}
   }
   function render(){

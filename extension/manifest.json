@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "CRH Monitor",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "__MSG_extensionDescription__",
   "permissions": [
     "storage",
@@ -11,7 +11,8 @@
   "host_permissions": [
     "https://www.computersrh.xyz/*",
     "https://rpc.mainnet.chain.robinhood.com/*",
-    "https://api.exchange.coinbase.com/*"
+    "https://api.exchange.coinbase.com/*",
+    "https://api.dexscreener.com/*"
   ],
   "background": {
     "service_worker": "background.js"
@@ -47,6 +48,9 @@
         "i18n.js",
         "ledger.js",
         "project.js",
+        "analytics.js",
+        "planner.js",
+        "planner-view.js",
         "project-view.js",
         "view.js",
         "content.js",

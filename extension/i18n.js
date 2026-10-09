@@ -25,6 +25,35 @@
  'CRH Monitor обновлён · перезагрузить игру':'CRH Monitor updated · reload game','После обновления расширения вкладку игры нужно перезагрузить':'Reload the game tab after updating the extension',
  'RPC не вернул корректный ответ':'RPC returned an invalid response','RPC вернул другую сеть':'RPC returned the wrong chain','Нет исторического курса':'Historical price unavailable','RPC не вернул журнал CRH':'RPC returned invalid CRH logs','Транзакция ещё не доступна':'Transaction is not available yet'
  };
+ Object.assign(en,{
+  "Изначальный инвест": "Initial investment",
+  "Инвест + реинвест": "Investment + reinvestment",
+  "Включая электричество, уход и остальные оплаты игры": "Includes electricity, care and all other game payments",
+  "Реинвест и цены клеймов": "Reinvestment and claim prices",
+  "Реинвестировано наград": "Rewards reinvested",
+  "Из них: известные энергия и уход": "Identified electricity and care",
+  "Эти награды по цене клейма": "Those rewards at claim prices",
+  "Курс: клейм → оплата": "Price change: claim → payment",
+  "Все клеймы по цене получения": "All claims at receipt prices",
+  "Результат до реинвеста": "Result before reinvestment",
+  "Изначальный инвест — покупки CRH за внешние деньги, включая пополнения. Инвест + реинвест добавляет долю наград во всех игровых оплатах: ПК, стройка, энергия, уход и прочее. Смешанный баланс распределяется пропорционально. Результат до реинвеста = Project PnL + потраченные на игру награды; это учётный показатель до этих расходов, не деньги к выводу и не стоимость оборудования.": "Initial investment is external money spent buying CRH, including top-ups. Investment + reinvestment adds the reward-funded share of all game payments: PCs, construction, energy, care and more. Mixed balances are allocated proportionally. Result before reinvestment = Project PnL + rewards spent in the game; this is an accounting result before those expenses, not withdrawable cash or hardware value.",
+  "Цена CRH при клейме": "CRH price at claim",
+  "Оценка полученных наград": "Claimed reward value",
+  "Источник цены": "Price source",
+  "Отклонение времени котировки": "Quote time offset",
+  " с": " s",
+  "Оплачено из наград (оценка)": "Reward-funded payment (estimate)",
+  "Уточнена вручную": "Entered manually",
+  "Котировка игры рядом с клеймом (оценка)": "Game quote near claim (estimate)",
+  "Ближайшая игровая оплата (оценка)": "Nearby game payment (estimate)",
+  "Dexscreener рядом с клеймом (оценка)": "Dexscreener near claim (estimate)",
+  "Нет исторической цены для ": "Historical prices missing for ",
+  " клеймов. Сумма реинвеста известна из оплат; курсовой эффект доступен только при сохранённых ценах. ": " claims. Reinvestment value is known from payments; price-change effects require saved claim prices. ",
+  "Известная оценка клеймов: ": "Known claim value: ",
+  "Цены клеймов — оценки по ближайшей котировке в пределах 60 секунд. Источник и время показаны в операциях; сегодняшний курс не подставляется в прошлое.": "Claim prices are estimates from the nearest quote within 60 seconds. Source and timing appear in Transactions; current prices are never applied to the past.",
+  "Цена CRH при клейме, $": "CRH price at claim, $",
+  "Заполняется автоматически из сохранённой котировки рядом с клеймом. Вручную — только уточнение; себестоимость наград для Project PnL остаётся нулевой.": "Filled automatically from a saved quote near the claim. Manual input is only a correction; reward acquisition cost for Project PnL stays zero."
+});
  const reverse=Object.fromEntries(Object.entries(en).map(([ru,value])=>[value,ru]));
  function language(settings){if(settings?.language==='ru'||settings?.language==='en')return settings.language;return /^ru\b/i.test(globalThis.navigator?.language||'en')?'ru':'en'}
  const locale=lang=>lang==='ru'?'ru-RU':'en-US';

@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.0
+
+- Separate Initial investment and Investment + reinvestment amounts, including reward-funded electricity and care.
+- Claim-price valuations, payment-time values and reinvestment FX with proportional allocation of mixed balances; original cash PnL unchanged.
+- Automatic confirmed game prices and a validated DEX Screener CRH quote archive, explicit sources and bounded historical recovery.
+- Account-position history, dilution, ranked-island growth, new top-100 entries and uninterrupted activity-spike detection in Analytics.
+- Read-only Budget planner using observed recipes, inventory reuse, replacements, construction gates, bonuses, paid builder queue and full-horizon operating reserves.
+- Price, hash and reward-budget scenarios; best-found plans and optional no-purchase decisions with clear search limits.
+- Expanded RU/EN guides, account exports and financial/DEX/planner regression tests.
+
 ## 1.3.0
 
 - English/Russian language selector with immediate updates and saved preferences.
