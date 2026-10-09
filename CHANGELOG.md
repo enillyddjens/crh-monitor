@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.6.4 — 2026-10-09
+
+- Include the last confirmed unclaimed Rewards in CRH value and PnL instead of silently removing them after two minutes. Show wallet + Rewards separately and flag stale observations.
+- Keep the combined value unavailable during an unreconciled wallet update or when a newer claim makes the Rewards snapshot unsafe; never substitute wallet-only value for an unknown total.
+- Use the reward settlement timestamp to prevent a later payout from being counted twice.
+- Refresh the visible game about every 15 seconds, wallet and DEX quotes every 30 seconds, and UI clocks every 10 seconds. Keep routine ledger scans at two minutes and leaderboard archives hourly.
+- Refresh wallet/history promptly after observed game spending or claims; the overlay refresh button now refreshes wallet and price as well.
+- Preserve manual plan recalculation and saved strategies during live balance updates.
+
 ## 1.6.3 — 2026-10-09
 
 - Preserve a separate expansion search alongside mixed development, avoiding premature pruning of multi-step plot/Hall routes; merge results from the same inputs and expose coverage metadata.

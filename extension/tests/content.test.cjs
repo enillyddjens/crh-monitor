@@ -51,3 +51,7 @@ test('background saves selected operation before opening settings',async()=>{
 test('background rejects unrelated origins and invalid focus without navigation or writes',async()=>{
  const h=background();for(const sender of [{url:'https://evil.example/',tab:{id:1}},{url:'https://www.computersrh.xyz.evil/play/island',tab:{id:1}},{url:'https://www.computersrh.xyz/play/island'}])assert.equal((await h.message({type:'openOptions'},sender)).ok,false);assert.equal((await h.message({type:'openOptions',focusTx:{wallet:'bad',id}},{url:'https://www.computersrh.xyz/play/island',tab:{id:1}})).ok,false);assert.equal(h.calls.length,0);
 });
+
+test('overlay manual refresh requests both game state and selected-wallet market refresh',async()=>{
+ const h=harness();await flush();await h.callbacks.onRefresh();await flush();assert(h.posted.some(m=>m.type==='CRH_MONITOR_REFRESH_V1'));assert(h.calls.some(m=>m.type==='refreshLive'));
+});

@@ -81,7 +81,7 @@
    const rows=L.analyze(data.ledgers?.[w],data.corrections?.[w],data.orders?.[w],null,null,null,[...(data.history||[]),...(data.priceHistory||[])]).rows,r=rows.find(v=>v.id===focus.id);
    if(r){await chrome.storage.local.remove('focusTx');view.tab('journal');edit(r)}
  }
- function investmentSummary(settings,w){const ledger=data.ledgers?.[w],m=C.compute(settings,data.games?.[w],data.chain,data.market),claim=m.freshGame?L.claimableAt(ledger,m.claimable,m.own?.serverNow??m.own?.seenAt):null,a=L.analyze(ledger,data.corrections?.[w],data.orders?.[w],data.chain?.wallet===w?data.chain.balanceWei:null,claim,m.price,[...(data.history||[]),...(data.priceHistory||[])]);return{initialInvestment:a.initialInvestment,totalInvestment:a.totalInvestment,projectPnL:a.pnl,resultBeforeReinvestment:a.pnlWithReinvest,reinvestment:a.reinvest,ready:a.ready};}
+ function investmentSummary(settings,w){const ledger=data.ledgers?.[w],m=C.compute(settings,data.games?.[w],data.chain,data.market),claim=L.assetSnapshot(m,ledger).claimable,a=L.analyze(ledger,data.corrections?.[w],data.orders?.[w],data.chain?.wallet===w?data.chain.balanceWei:null,claim,m.price,[...(data.history||[]),...(data.priceHistory||[])]);return{initialInvestment:a.initialInvestment,totalInvestment:a.totalInvestment,projectPnL:a.pnl,resultBeforeReinvestment:a.pnlWithReinvest,reinvestment:a.reinvest,ready:a.ready};}
  function CRHPriceObservations(){return (data.priceHistory||[]).filter(s=>s.source==='dexscreener'&&s.token===C.TOKEN.toLowerCase()).map(s=>({at:s.at,priceUSD:s.priceUSD,source:s.source,token:s.token,chainId:s.chainId,pair:s.pair}));}
  $("export")?.addEventListener('click',async()=>{
    await load();const settings=C.cleanSettings(data.settings),w=settings.wallet;if(!w)return;
@@ -89,5 +89,5 @@
    const url=URL.createObjectURL(new Blob([JSON.stringify(exported,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;const date=new Date(),pad=v=>String(v).padStart(2,'0');a.download='crh-monitor-'+date.getFullYear()+'-'+pad(date.getMonth()+1)+'-'+pad(date.getDate())+'-'+pad(date.getHours())+pad(date.getMinutes())+'-'+w.slice(2,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
  });
  chrome.storage.onChanged.addListener((changes,area)=>{if(area!=='local')return;for(const [k,v]of Object.entries(changes))data[k]=v.newValue;applyLanguage();view.render(data);if(changes.focusTx)focusEntry().catch(()=>{})});
- load().then(()=>{if(!compact)fill();return focusEntry()}).catch(()=>{});setInterval(()=>view.render(data),30000);refresh().catch(()=>{});
+ load().then(()=>{if(!compact)fill();return focusEntry()}).catch(()=>{});setInterval(()=>view.render(data),10000);refresh().catch(()=>{});
 })();

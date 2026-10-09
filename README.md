@@ -64,7 +64,7 @@ The **ready-PC equivalent** is an illustrative range: `hash × catalog $/H/s`, a
 
 The reinvestment details show rewards at claim prices, their value when spent and the difference. **Result before reinvestment** is Project PnL plus rewards subsequently spent in the game. It is a result before those expenses, not withdrawable money or hardware resale value. Project PnL itself is unchanged.
 
-Game execution prices are automatic: confirmed USD order value divided by CRH paid. Claim market prices are estimated from the nearest saved game quote, a confirmed game payment or a validated DEX Screener CRH quote within **60 seconds** of the claim. The source and time offset are shown. The extension records DEX quotes about once per minute, selecting the most liquid eligible Robinhood pool with the exact CRH base-token address; quotes can lag market activity. DEX quotes are retained for up to 30 days locally. Today's price is never used for a past claim. Missing historical prices leave the FX calculation unavailable; they do not prevent payment-based reinvest totals. Manual corrections are optional.
+Game execution prices are automatic: confirmed USD order value divided by CRH paid. Claim market prices are estimated from the nearest saved game quote, a confirmed game payment or a validated DEX Screener CRH quote within **60 seconds** of the claim. The source and time offset are shown. The extension records DEX quotes about every 30 seconds, selecting the most liquid eligible Robinhood pool with the exact CRH base-token address; quotes can lag market activity. DEX quotes are retained for up to 30 days locally. Today's price is never used for a past claim. Missing historical prices leave the FX calculation unavailable; they do not prevent payment-based reinvest totals. Manual corrections are optional.
 
 The public [DEX Screener API](https://docs.dexscreener.com/api/reference) provides current quotes, not a historical-candle endpoint. Old claims are recovered only where recorded contemporaneous data exists. Account exports now include investment summaries, price observations and account-position history.
 
@@ -130,9 +130,9 @@ A partial scan, unknown acquisition cost or balance mismatch leaves total PnL un
 
 ## Freshness and privacy
 
-Game state is observed or read about once per minute while a valid game tab is available. Wallet balances/history refresh about every two minutes while the browser is running. Project collection depends on that game session. Closing the game stops fresh game observations; closing the browser or sleeping the computer stops collection. Background-tab throttling can delay sampling.
+Game state is observed or read about every 15 seconds while a visible, valid game tab is available. Wallet balances and DEX quotes refresh about every 30 seconds; routine ledger scans stay at two minutes. Observed claims or spending trigger a wallet/history refresh. Project collection depends on that game session. Closing the game stops fresh game observations; closing the browser or sleeping the computer stops collection. Background-tab throttling can delay sampling.
 
-After two minutes without fresh game data, claimable rewards are excluded from PnL and payback is paused. Prices and cached snapshots carry freshness indicators. Failed API/RPC reads preserve recorded data and show an unavailable-source status.
+Last confirmed unclaimed Rewards remain in CRH value and PnL when the game snapshot becomes stale, with a snapshot warning; they are not extrapolated into future earnings. Combined value waits for synchronization if wallet and ledger disagree or a newer payout invalidates the Rewards snapshot. After two minutes without fresh game data, payback and new plan calculations remain paused. Prices and cached snapshots carry freshness indicators. Failed API/RPC reads preserve recorded data and show an unavailable-source status.
 
 Settings, account observations, transactions, corrections and public project snapshots stay in **this browser profile**. No analytics or developer backend is used. The extension does not read a seed phrase, connect to `window.ethereum`, sign transactions or initiate buys, claims or approvals. Session headers remain inside the game-page bridge for its GET requests; they are never saved or exported.
 
@@ -183,7 +183,7 @@ Plans recalculate when **Update plan** is requested. Temporary transaction sync,
 
 Slow growth is a favorable assumption, not a forecast: other hashrate rises 50% over five days and the ending token price rises 10%. It can produce much higher CRH value per H/s than hype with much faster competition growth. The trajectory shows ending daily income per 1 H/s before energy, care and gas. Different 3/5/7/10-day horizons and ending balances are not equal-period investment returns or realized PnL.
 
-DEX quotes still record once per minute for claim valuation; this never triggers plan recalculation. UI clocks update every 30 seconds. Existing freshness and balance-reconciliation requirements remain mandatory for a new calculation.
+DEX quotes record every 30 seconds for claim valuation; this never triggers plan recalculation. UI clocks update every 10 seconds. Existing freshness and balance-reconciliation requirements remain mandatory for a new calculation.
 
 
 ## Inventory and route comparison (v1.6.3)

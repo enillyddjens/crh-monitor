@@ -61,7 +61,7 @@
    return promise;
  };
  async function refresh(force=false){
-   if(inflight||!headers||Date.now()-lastRefresh<10000||(!force&&Date.now()-lastSeen<25000)||(!force&&document.hidden))return;
+   if(inflight||!headers||Date.now()-lastRefresh<10000||(!force&&Date.now()-lastSeen<10000)||(!force&&document.hidden))return;
    inflight=true;lastRefresh=Date.now();
    try{
      const r=await original.call(window,"/api/web3/state",{method:"GET",headers,credentials:"same-origin",cache:"no-store",signal:AbortSignal.timeout(12000)});
@@ -98,8 +98,9 @@
    if(e.source!==window||e.origin!==location.origin)return;
    if(e.data?.type==="CRH_MONITOR_HELLO_V1"&&lastSnapshot)window.postMessage({type:"CRH_MONITOR_STATE_V1",snapshot:lastSnapshot},location.origin);
    if(e.data?.type==="CRH_MONITOR_HELLO_V1"){for(const b of Object.values(lastBoard))sendProject("board",b);if(lastCatalog)sendProject("catalog",lastCatalog);}
-   if(e.data?.type==="CRH_MONITOR_REFRESH_V1"){refresh(true);refreshBoards(e.data.automatic!==true);}
+   if(e.data?.type==="CRH_MONITOR_REFRESH_V1"){refresh(e.data.automatic!==true);refreshBoards(e.data.automatic!==true);}
    if(e.data?.type==="CRH_MONITOR_ENRICH_V2")enrich(e.data.wallet,e.data.ids);
  });
- setInterval(()=>{refresh(false);refreshBoards(false)},60000);
+ document.addEventListener?.("visibilitychange",()=>{if(!document.hidden)refresh(false)});
+ setInterval(()=>{refresh(false);refreshBoards(false)},15000);
 })();

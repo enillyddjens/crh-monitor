@@ -44,7 +44,7 @@
     if(view)view.render(data);
     if(mini){
       const m=C.compute(settings,data.games?.[settings.wallet],data.chain,data.market);
-      const pnl=CRHLedger.analyze(data.ledgers?.[settings.wallet],data.corrections?.[settings.wallet],data.orders?.[settings.wallet],data.chain?.wallet===settings.wallet?data.chain.balanceWei:null,m.freshGame?CRHLedger.claimableAt(data.ledgers?.[settings.wallet],m.claimable,m.own?.serverNow??m.own?.seenAt):null,m.price);
+      const pnl=CRHLedger.analyze(data.ledgers?.[settings.wallet],data.corrections?.[settings.wallet],data.orders?.[settings.wallet],data.chain?.wallet===settings.wallet?data.chain.balanceWei:null,CRHLedger.assetSnapshot(m,data.ledgers?.[settings.wallet]).claimable,m.price);
       mini.textContent="CRH "+I.usd(m.price,6,I.language(settings))+" · PnL "+(pnl.pnl===null?"—":(pnl.pnl>=0?"+":"−")+I.usd(Math.abs(pnl.pnl),undefined,I.language(settings)));
     }
   }
@@ -59,7 +59,7 @@
     shadow.append(mini);
     const toggle=()=>{if(stopped)return;collapsed=!collapsed;shell.style.display=collapsed?"none":"block";mini.style.display=collapsed?"block":"none";extensionCall(()=>chrome.storage.local.set({collapsed}));};
     mini.addEventListener("click",toggle);
-    view=CRHView.create(shell,{compact:true,onClose:toggle,onLanguage:language=>extensionCall(()=>chrome.runtime.sendMessage({type:"setLanguage",language})),onSettings:()=>openSettings(),onRefresh:()=>{if(!stopped)window.postMessage({type:"CRH_MONITOR_REFRESH_V1"},location.origin)},onEdit:r=>openSettings({wallet:r.wallet,id:r.id})});
+    view=CRHView.create(shell,{compact:true,onClose:toggle,onLanguage:language=>extensionCall(()=>chrome.runtime.sendMessage({type:"setLanguage",language})),onSettings:()=>openSettings(),onRefresh:()=>{if(!stopped){window.postMessage({type:"CRH_MONITOR_REFRESH_V1"},location.origin);extensionCall(()=>chrome.runtime.sendMessage({type:"refreshLive"}));}},onEdit:r=>openSettings({wallet:r.wallet,id:r.id})});
     document.body.append(host);
     extensionCall(()=>chrome.storage.local.get("collapsed")).then(x=>{if(x?.collapsed&&!collapsed&&!stopped)toggle();});
     render();
@@ -73,7 +73,7 @@
   window.addEventListener("message",onPageMessage);
   try{chrome.runtime.onMessage.addListener(onRuntimeMessage);chrome.storage.onChanged.addListener(onStorageChanged)}catch{stop();return;}
   window.postMessage({type:"CRH_MONITOR_HELLO_V1"},location.origin);
-  timer=setInterval(render,30000);
+  timer=setInterval(render,10000);
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mount,{once:true});else mount();
   load();
 })();

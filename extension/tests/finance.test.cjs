@@ -54,3 +54,27 @@ test('builder timer separates current job from end of entire queue',()=>{
  const raw={wallet:w,chain_id:4663,token:C.TOKEN,progression:{builder:{current:{kind:'grid',target:1,name:'Power Level 1',starts_at:1000,ends_at:4000},queue:[{kind:'plot',target:1,name:'Plot 2',starts_at:4000,ends_at:28000,signature:'secret'}],finishes_at:28000,queue_length:1}}};
  const s=C.sanitizeState(raw);assert.equal(s.builderEnd,4000);assert.equal(s.builderQueueEnd,28000);assert.equal(s.builderJobs.length,2);assert(!JSON.stringify(s).includes('secret'));assert.deepEqual(C.validateSnapshot(s).builderJobs,s.builderJobs);
 });
+
+const L=require('../ledger.js');
+const assets=(g=game,c=chain,l=null,at=now)=>{const m=C.compute(settings,g,c,g,at);return L.assetSnapshot(m,l);};
+const holdings={wallet:w,complete:true,records:[{quantityWei:chain.balanceWei,direction:1,type:'buy',at:now-600000}]};
+test('CRH value includes confirmed unclaimed Rewards even after freshness expires, without inventing accrued tokens',()=>{
+ const old={...game,seenAt:now-300000,serverNow:now-300000,settledAt:now-300000};
+ const a=assets(old,chain,holdings);assert.equal(a.claimable,2);assert.equal(a.totalTokens,50002);assert.equal(a.valueUSD,50.002);assert.equal(a.staleRewards,true);assert.equal(C.compute(settings,old,chain,old,now).paybackDays,null);
+ assert.equal(assets({...old,priceUSD:.002},chain,holdings).valueUSD,100.004);
+ assert.equal(assets(old,chain,holdings,now+3600000).claimable,2);
+});
+test('missing Rewards, unsettled game, or unknown wallet never becomes a wallet-only combined value',()=>{
+ for(const g of [{...game,claimableWei:null},{...game,settlement:'pending'},null])assert.equal(assets(g).valueUSD,null);
+ assert.equal(assets(game,null).valueUSD,null);assert.equal(assets({...game,claimableWei:'0'}).valueUSD,50);
+ assert.equal(assets({...game,wallet:'0x'+'3'.repeat(40)}).claimable,null);
+});
+test('wallet changes wait for matching ledger to avoid counting an unobserved payout twice',()=>{
+ const changed={...chain,balanceWei:'50002000000000000000000'};const a=assets(game,changed,holdings);assert.equal(a.pendingBalance,true);assert.equal(a.valueUSD,null);
+ const payout={wallet:w,complete:true,records:[...holdings.records,{type:'reward',direction:1,quantityWei:game.claimableWei,at:now+1000}]};
+ const before=assets({...game,serverNow:now+2000,settledAt:now},changed,payout);assert.equal(before.claimable,null);assert.equal(before.valueUSD,null);
+ const after=assets({...game,serverNow:now+2000,settledAt:now+2000,claimableWei:'0'},changed,payout);assert.equal(after.valueUSD,50.002);assert.equal(after.totalTokens,50002);
+});
+test('reward reconciliation does not inspect a different wallet ledger',()=>{
+ const other={...holdings,wallet:'0x'+'3'.repeat(40),records:[{type:'reward',at:now+10000,quantityWei:'1',direction:1}]};assert.equal(assets(game,chain,other).valueUSD,50.002);
+});

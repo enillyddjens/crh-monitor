@@ -54,6 +54,12 @@
   "Цена CRH при клейме, $": "CRH price at claim, $",
   "Заполняется автоматически из сохранённой котировки рядом с клеймом. Вручную — только уточнение; себестоимость наград для Project PnL остаётся нулевой.": "Filled automatically from a saved quote near the claim. Manual input is only a correction; reward acquisition cost for Project PnL stays zero."
 });
+ Object.assign(en,{
+  " CRH в кошельке + ":" wallet CRH + ",
+  " · снимок ":" · snapshot ",
+  " · синхронизация":" · syncing",
+  "Только чтение · игра ≈ 15 с · баланс ≈ 30 с":"Read only · game ≈ 15s · wallet ≈ 30s"
+ });
  const reverse=Object.fromEntries(Object.entries(en).map(([ru,value])=>[value,ru]));
  function language(settings){if(settings?.language==='ru'||settings?.language==='en')return settings.language;return /^ru\b/i.test(globalThis.navigator?.language||'en')?'ru':'en'}
  const locale=lang=>lang==='ru'?'ru-RU':'en-US';

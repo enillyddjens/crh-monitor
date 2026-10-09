@@ -167,7 +167,7 @@
     const budget=units(quote?.budgetWei);
     const rate=quote?.rateBps;
     const poolAtStart=budget!==null&&rate>0 ? budget/(rate/10000):null;
-    return {own,quote,p,freshGame,freshPrice,price,balance,claimable,share,dailyTokens,energyDaily,grossDaily,netDaily,basis,remaining,paybackDays,actionable,budget,poolAtStart,
+    return {own,quote,p,freshGame,freshPrice,price,balance,balanceWei:chain?.wallet===selected?chain.balanceWei:null,claimable,share,dailyTokens,energyDaily,grossDaily,netDaily,basis,remaining,paybackDays,actionable,budget,poolAtStart,
       balanceUSD:balance!==null&&price!==null?balance*price:null,
       claimableUSD:claimable!==null&&price!==null?claimable*price:null,
       vaultTokens:units(chain?.vaultWei),chainFresh:!!chain&&chain.wallet===selected&&now-chain.at<180000&&!chain.error,

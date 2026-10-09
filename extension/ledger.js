@@ -165,6 +165,18 @@
     // Do not count old unclaimed rewards after a newer on-chain payout already entered the wallet.
     return (ledger?.records||[]).some(r=>r.type==="reward"&&r.at>observedAt)?null:amount;
   }
+  function assetSnapshot(m,ledger){
+    const own=m.own,matching=ledger&&C.wallet(ledger.wallet)===own?.wallet?ledger:null;
+    const observedAt=own?.settledAt??own?.serverNow??own?.seenAt;
+    const settled=!!own&&(!own.settlement||own.settlement==='ready');
+    const claimable=settled?claimableAt(matching,m.claimable,observedAt):null;
+    // A newer wallet response may already include a payout that the ledger has not caught up with.
+    const pendingBalance=matching?.complete&&C.wei(m.balanceWei)!==null&&
+      (matching.records||[]).reduce((sum,r)=>sum+BigInt(r.quantityWei)*BigInt(r.direction),0n)!==BigInt(m.balanceWei);
+    const totalTokens=!pendingBalance&&m.balance!==null&&claimable!==null?m.balance+claimable:null;
+    return {claimable,observedAt,staleRewards:claimable!==null&&!m.freshGame,pendingBalance:!!pendingBalance,
+      totalTokens,valueUSD:totalTokens!==null&&m.price!==null?totalTokens*m.price:null};
+  }
   function analyze(ledger,corrections={},orders={},balanceWei=null,claimable=null,price=null,observations=[]){
     const rows=claimPrices((ledger?.records||[]).map(r=>effective(r,corrections[r.id],orders[r.orderId])),observations).sort((a,b)=>a.block-b.block||(a.index??0)-(b.index??0)||a.id.localeCompare(b.id));
     const issues=[];let buys=0,sales=0,gameSpend=0,gas=0,boughtQty=0,boughtCost=0,inventory=0n;
@@ -203,6 +215,6 @@
       gameFX:ready?gameFX:null,unresolvedGas,claimIncluded:claimable!==null,
       inventoryWei:inventory.toString(),walletValue,claimValue};
   }
-  const api={SHOP,PONS,TRANSFER,USDG,WETH,hash,hex,netTransfers,decode,sanitizeCorrection,effective,spendKind,claimPrices,reinvestment,claimableAt,analyze};
+  const api={SHOP,PONS,TRANSFER,USDG,WETH,hash,hex,netTransfers,decode,sanitizeCorrection,effective,spendKind,claimPrices,reinvestment,claimableAt,assetSnapshot,analyze};
   globalThis.CRHLedger=api;if(typeof module!=="undefined"&&module.exports)module.exports=api;
 })();
