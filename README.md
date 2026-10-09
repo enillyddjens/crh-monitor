@@ -165,3 +165,13 @@ python scripts/build.py
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the release process. Independent project; not affiliated with Computers RH or Robinhood.
+
+## Four project scenarios (v1.6)
+
+The planner replaces manual scenario percentages with four conditional paths: collapse (3 days), slow growth (5 days), public-launch hardware buying from existing CRH (7 days), and volatile hype (10 days). Choose one or compare all four. Horizons differ: ending values are not a ranking of scenario likelihood. Price paths are assumptions, independent of game spending, and their future peaks are unknown in real trading.
+
+Daily rewards follow the server's pool release rule and announced rate changes. 60% of modeled purchases becomes eligible from the next game day. Your game payments are added separately. A top-100 token-spend increase supplies a lower bound on known historical inflows; unknown past replenishments are excluded. Vault balances and already earned claims are not counted as unearned reward pool. Spending per new hash and operating expenses use the observed shop mix and an assumed bonus. Ranked-island counts mean owners with PCs, not active miners.
+
+The collapse route avoids new capital purchases, retains 12 hours of operating funds, estimates selling excess CRH every 12 hours and a full exit after 60 hours. Dollar proceeds are conditional on executing those sales; the model does not guarantee price or liquidity and assigns zero terminal value after collapse. Swap gas uses the observed average game-transaction fee plus a 25% buffer. Sales are never automatic. Normal scenarios retain mined CRH; end values are marked to the modeled price, not realized profit.
+
+Public launch is anchored to October 9, 2026, 16:00 UTC. Recalculating after launch does not restart the launch shock. The bounded search and 30-minute mining integration remain approximate. Only exact observed ready-PC recipes are searched; arbitrary custom component combinations are not exhaustively optimized.

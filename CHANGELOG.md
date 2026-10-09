@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.6.0 — 2026-10-09
+
+- Replace manual scenario inputs with four project paths and an all-scenario comparison, with 3/5/7/10-day horizons and Russian/English labels.
+- Model delayed 60% purchase replenishment, pool depletion, announced server release changes and your own payments separately; use top-100 token-spend growth only as a lower bound on historical inflows.
+- Keep the public-launch timestamp fixed; include interior price peaks in reinvestment search bounds and normalize paths after launch.
+- Add an explicitly conditional collapse cashout route without new equipment; no real purchases, sales or signatures are executed.
+- Preserve numbered RAM/fan slots and account for installed RAM/fans when older snapshots omit their slot IDs, while excluding inactive sealed-PC towers.
+- Add regression tests for pool conservation, no vault double count, launch timing, self-funded payments, exit gas and maintenance coverage.
+
+
 ## 1.5.0
 
 - Reinvestment-only development planner: wallet balance (optional), claimable rewards and future mining fund sequential steps without new deposits.
