@@ -88,7 +88,7 @@ Choose **CRH balance** to favor the remaining liquid value at the end, or **Hash
 
 Today's confirmed server payout calibrates the simulation; the reward-budget scenario starts at the recorded game-day reset. Prices and other islands' hash follow your scenario. Game spending does not incur a modeled selling fee; a hypothetical ending cash-value comparison uses the selling-fee setting. The calculation conserves tokens, cannot spend future income before it is earned, and does not inject new money. It can recommend waiting or retaining rewards. If existing funds/energy cannot keep mining, the interruption is displayed.
 
-Search is bounded to 24 development actions, 20 retained candidates and 18,000 examined variants with roughly 30-minute waiting steps. It returns the best plans found, not a guaranteed global optimum. Alternative individual components, pool replenishments (including future purchases), new referrals, announced future rule changes and slippage are not forecast. Recalculate as actual data changes; a visible reinvestment tab with an existing calculation recomputes about every five minutes when new fresh data arrives. Account exports include the last forecast with its snapshot time and assumptions. No purchase, claim, approval or transfer is executed.
+Search is bounded to 24 development actions, 20 retained candidates and 18,000 examined variants with roughly 30-minute waiting steps. It returns the best plans found, not a guaranteed global optimum. Alternative individual components, pool replenishments (including future purchases), new referrals, announced future rule changes and slippage are not forecast. Recalculate using Update plan as actual data changes. Background observations never automatically replace a successful plan. Account exports include the last forecast with its snapshot time and assumptions. No purchase, claim, approval or transfer is executed.
 
 ## PnL and payback
 
@@ -130,7 +130,7 @@ A partial scan, unknown acquisition cost or balance mismatch leaves total PnL un
 
 ## Freshness and privacy
 
-Game state is observed or read every 30–60 seconds while a valid game tab is available. Wallet balances/history refresh about once per minute while the browser is running. Project collection depends on that game session. Closing the game stops fresh game observations; closing the browser or sleeping the computer stops collection. Background-tab throttling can delay sampling.
+Game state is observed or read about once per minute while a valid game tab is available. Wallet balances/history refresh about every two minutes while the browser is running. Project collection depends on that game session. Closing the game stops fresh game observations; closing the browser or sleeping the computer stops collection. Background-tab throttling can delay sampling.
 
 After two minutes without fresh game data, claimable rewards are excluded from PnL and payback is paused. Prices and cached snapshots carry freshness indicators. Failed API/RPC reads preserve recorded data and show an unavailable-source status.
 
@@ -175,3 +175,12 @@ Daily rewards follow the server's pool release rule and announced rate changes. 
 The collapse route avoids new capital purchases, retains 12 hours of operating funds, estimates selling excess CRH every 12 hours and a full exit after 60 hours. Dollar proceeds are conditional on executing those sales; the model does not guarantee price or liquidity and assigns zero terminal value after collapse. Swap gas uses the observed average game-transaction fee plus a 25% buffer. Sales are never automatic. Normal scenarios retain mined CRH; end values are marked to the modeled price, not realized profit.
 
 Public launch is anchored to October 9, 2026, 16:00 UTC. Recalculating after launch does not restart the launch shock. The bounded search and 30-minute mining integration remain approximate. Only exact observed ready-PC recipes are searched; arbitrary custom component combinations are not exhaustively optimized.
+
+
+## Reading and updating a plan (v1.6.2)
+
+Plans recalculate when **Update plan** is requested. Temporary transaction sync, a balance mismatch or stale observations retain the last successful plan with a warning. Open recipes and action details remain expanded during background observations. The last saved plan restores for the same wallet and options; it is historical and must be updated with fresh reconciled data before purchasing. Wallet/option changes do not reuse another calculation. All four scenarios use one frozen observation.
+
+Slow growth is a favorable assumption, not a forecast: other hashrate rises 50% over five days and the ending token price rises 10%. It can produce much higher CRH value per H/s than hype with much faster competition growth. The trajectory shows ending daily income per 1 H/s before energy, care and gas. Different 3/5/7/10-day horizons and ending balances are not equal-period investment returns or realized PnL.
+
+DEX quotes still record once per minute for claim valuation; this never triggers plan recalculation. UI clocks update every 30 seconds. Existing freshness and balance-reconciliation requirements remain mandatory for a new calculation.

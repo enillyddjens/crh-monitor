@@ -98,8 +98,8 @@
    if(e.source!==window||e.origin!==location.origin)return;
    if(e.data?.type==="CRH_MONITOR_HELLO_V1"&&lastSnapshot)window.postMessage({type:"CRH_MONITOR_STATE_V1",snapshot:lastSnapshot},location.origin);
    if(e.data?.type==="CRH_MONITOR_HELLO_V1"){for(const b of Object.values(lastBoard))sendProject("board",b);if(lastCatalog)sendProject("catalog",lastCatalog);}
-   if(e.data?.type==="CRH_MONITOR_REFRESH_V1"){refresh(true);refreshBoards(true);}
+   if(e.data?.type==="CRH_MONITOR_REFRESH_V1"){refresh(true);refreshBoards(e.data.automatic!==true);}
    if(e.data?.type==="CRH_MONITOR_ENRICH_V2")enrich(e.data.wallet,e.data.ids);
  });
- setInterval(()=>{refresh(false);refreshBoards(false)},30000);
+ setInterval(()=>{refresh(false);refreshBoards(false)},60000);
 })();

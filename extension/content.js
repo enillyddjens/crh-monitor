@@ -64,7 +64,7 @@
     extensionCall(()=>chrome.storage.local.get("collapsed")).then(x=>{if(x?.collapsed&&!collapsed&&!stopped)toggle();});
     render();
   }
-  function onRuntimeMessage(m){if(stopped)return;if(m?.type==="refreshGame")window.postMessage({type:"CRH_MONITOR_REFRESH_V1"},location.origin);if(m?.type==="enrichOrders")window.postMessage({type:"CRH_MONITOR_ENRICH_V2",wallet:m.wallet,ids:m.ids},location.origin);}
+  function onRuntimeMessage(m){if(stopped)return;if(m?.type==="refreshGame")window.postMessage({type:"CRH_MONITOR_REFRESH_V1",automatic:m.automatic===true},location.origin);if(m?.type==="enrichOrders")window.postMessage({type:"CRH_MONITOR_ENRICH_V2",wallet:m.wallet,ids:m.ids},location.origin);}
   function onStorageChanged(changes,area){
     if(stopped||area!=="local")return;
     for(const [k,v]of Object.entries(changes))data[k]=v.newValue;
@@ -73,7 +73,7 @@
   window.addEventListener("message",onPageMessage);
   try{chrome.runtime.onMessage.addListener(onRuntimeMessage);chrome.storage.onChanged.addListener(onStorageChanged)}catch{stop();return;}
   window.postMessage({type:"CRH_MONITOR_HELLO_V1"},location.origin);
-  timer=setInterval(render,10000);
+  timer=setInterval(render,30000);
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",mount,{once:true});else mount();
   load();
 })();

@@ -89,5 +89,5 @@
    const url=URL.createObjectURL(new Blob([JSON.stringify(exported,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;const date=new Date(),pad=v=>String(v).padStart(2,'0');a.download='crh-monitor-'+date.getFullYear()+'-'+pad(date.getMonth()+1)+'-'+pad(date.getDate())+'-'+pad(date.getHours())+pad(date.getMinutes())+'-'+w.slice(2,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
  });
  chrome.storage.onChanged.addListener((changes,area)=>{if(area!=='local')return;for(const [k,v]of Object.entries(changes))data[k]=v.newValue;applyLanguage();view.render(data);if(changes.focusTx)focusEntry().catch(()=>{})});
- load().then(()=>{if(!compact)fill();return focusEntry()}).catch(()=>{});setInterval(()=>view.render(data),10000);refresh().catch(()=>{});
+ load().then(()=>{if(!compact)fill();return focusEntry()}).catch(()=>{});setInterval(()=>view.render(data),30000);refresh().catch(()=>{});
 })();

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.6.2 — 2026-10-09
+
+- Make plan recalculation manual; preserve successful results and expanded details during stale or temporarily unreconciled observations and failed retries.
+- Restore the latest saved plan for matching wallet/options, clearly marked historical; keep fresh reconciled funding mandatory for a new calculation.
+- Use one frozen observation for all four scenarios; discard interrupted calculations after wallet/parameter changes and clear cross-wallet comparisons.
+- Keep hourly leaderboard sampling on automatic wallet ticks; only explicit refresh requests can ask for an extra snapshot.
+- Reduce game reads to about one minute, wallet/history scans to two minutes and UI clocks to 30 seconds. Keep minute DEX quote recording for claim-price coverage.
+- Label slow growth as a favorable assumption, show ending income per H/s and clarify different horizons and balance-versus-profit comparisons.
+
 ## 1.6.1 — 2026-10-09
 
 - Require known pool release rules for a named scenario; incomplete snapshots return a fresh-data message instead of silently using legacy manual percentages.
