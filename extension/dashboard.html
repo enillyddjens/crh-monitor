@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>CRH Monitor · Панель</title><link rel="stylesheet" href="page.css"></head>
+<body><main id="app"></main>
+<details id="settings" class="settings"><summary>Настройки кошелька и расчёта</summary>
+<form id="settingsForm">
+<label class="full">Кошелёк в Robinhood Chain<input id="wallet" name="wallet" spellcheck="false" autocomplete="off" required pattern="0x[0-9a-fA-F]{40}"><small>Для показателей острова подключите этот адрес в открытой игре.</small></label>
+<label>База для окупаемости игры, $<input id="capitalUSD" type="number" step="0.01" min="0" placeholder="Авто: расходы в игре"><small>Не влияет на PnL: он считается по транзакциям. Пусто — сумма расходов, показанная игрой.</small></label>
+<label>Уже возвращено деньгами, $<input id="returnedUSD" type="number" step="0.01" min="0"><small>Для срока окупаемости. Только полученные деньги, без оставшихся CRH.</small></label>
+<label>Комиссия продажи, %<input id="sellFeePct" type="number" step="0.01" min="0" max="100"><small>Для дохода в день. Значение 3% — допущение; проскальзывание не включено.</small></label>
+<label>Уход за ПК, $/день<input id="careDailyUSD" type="number" step="0.01" min="0" placeholder="Не задан"><small>Средний расход на пасту, чистку и ремонт. Пусто — доход без ухода.</small></label>
+<label>Газ, $/день<input id="gasDailyUSD" type="number" step="0.001" min="0"><small>Резерв для дохода в день. PnL использует фактический газ операций с CRH.</small></label>
+<label class="checkbox"><input id="overlay" type="checkbox"> Панель поверх игры</label>
+<div class="full buttons"><button type="submit" class="primary">Сохранить</button><span id="saveStatus" role="status"></span></div>
+</form>
+</details>
+<div class="page-actions"><button id="openGame">Открыть игру ↗</button><button id="export">Экспорт истории</button></div>
+<p class="privacy">Данные хранятся в этом браузере. Расширение читает игру и сеть; управление кошельком остаётся в игре.</p>
+<dialog id="entryEditor" aria-labelledby="editorTitle"><form id="entryForm">
+<div class="dialog-top full"><h1 id="editorTitle">Уточнить операцию</h1><button type="button" id="editorClose" aria-label="Закрыть">×</button></div>
+<p id="editorMeta" class="full editor-meta"></p>
+<label class="full">Назначение<select id="editorType"></select></label>
+<label class="full">Название<input id="editorLabel" maxlength="100" placeholder="Например, Seed или Plot 2"></label>
+<label>Стоимость операции, $<input id="editorTotal" type="number" min="0" step="any" placeholder="Не определена"></label>
+<label>Газ операции, $<input id="editorGas" type="number" min="0" step="any" placeholder="Не определён"></label>
+<p id="editorHint" class="full editor-meta"></p>
+<div class="full buttons"><button type="submit" class="primary">Сохранить</button><button type="button" id="editorReset">Сбросить уточнения</button><span id="editorStatus" role="status"></span></div>
+</form></dialog>
+<script src="shared.js"></script><script src="i18n.js"></script><script src="project.js"></script><script src="project-view.js"></script><script src="ledger.js"></script><script src="view.js"></script><script src="page.js"></script></body></html>

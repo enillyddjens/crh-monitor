@@ -1,0 +1,11 @@
+1/6 I built CRH Monitor for @ComputersRh: a read-only Chrome/Edge extension for wallet PnL, mining income and project dynamics. English + Russian. Here is a 27-second walkthrough with demo data.
+
+2/6 Install: download the ZIP from GitHub Releases and extract it. Open chrome://extensions (or edge://extensions), enable Developer mode, then Load unpacked and choose the crh-monitor folder. Reload the game.
+
+3/6 Choose your wallet in Settings, or connect it in the game on first use. Set selling fees, daily PC care and gas for more useful income estimates. Switch EN / RU at the top; your choice is saved.
+
+4/6 Transactions show CRH buys, game payments and reward claims. Expand an order to compare its execution price, recorded quote and token cost basis. Fill missing details and export your history as JSON.
+
+5/6 The Project tab records economy data every 10 minutes and both top-100 leaderboards hourly. Hover a player for CRH spending and a ready-PC equivalent. H/s cannot reveal exact cash invested. Keep the game open to collect data.
+
+6/6 Open source. Data stays in your browser; no wallet signing or automated purchases. Payback assumes the current rate continues. Download, instructions and future releases: https://github.com/enillyddjens/crh-monitor/releases/latest

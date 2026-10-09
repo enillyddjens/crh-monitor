@@ -1,0 +1,11 @@
+dist/
+*.zip
+*.mp4
+*.webm
+*.har
+snapshots/
+crh-monitor-*.json
+crh-project-*.json
+node_modules/
+__pycache__/
+.DS_Store

@@ -1,0 +1,15 @@
+Publish the six posts in thread-en.txt as a thread, in order.
+
+1/6: attach crh-monitor-demo.mp4 (27 seconds, silent, English on-screen captions).
+2/6: attach 02-install.png.
+3/6: attach 03-setup.png.
+4/6: attach 04-transactions.png.
+5/6: attach 05-project.png.
+6/6: attach 01-overview.png.
+
+All financial and leaderboard values shown are synthetic and marked DEMO DATA.
+The install screenshot uses a clean test browser profile.
+Suggested video alt text: CRH Monitor demo showing PnL, income, pool, project trends, transaction prices, English/Russian switching, cost settings and JSON export.
+
+For future updates, share the releases/latest URL so users find the current ZIP.
+Unpacked extensions update manually: replace files in the same folder, click Reload on the extension, then refresh game tabs.
