@@ -1,0 +1,371 @@
+{
+  "power": [
+    {
+      "level": 0,
+      "minutes": 0,
+      "baseUSD": 0,
+      "perHashUSD": 0,
+      "minHall": 1,
+      "minPlots": null,
+      "bonusPct": null,
+      "hashCap": null,
+      "capacityW": 400
+    },
+    {
+      "level": 1,
+      "minutes": 15,
+      "baseUSD": 5,
+      "perHashUSD": 0.01,
+      "minHall": 1,
+      "minPlots": null,
+      "bonusPct": null,
+      "hashCap": null,
+      "capacityW": 475
+    },
+    {
+      "level": 2,
+      "minutes": 20,
+      "baseUSD": 5,
+      "perHashUSD": 0.01,
+      "minHall": 1,
+      "minPlots": null,
+      "bonusPct": null,
+      "hashCap": null,
+      "capacityW": 575
+    },
+    {
+      "level": 3,
+      "minutes": 25,
+      "baseUSD": 5,
+      "perHashUSD": 0.01,
+      "minHall": 1,
+      "minPlots": null,
+      "bonusPct": null,
+      "hashCap": null,
+      "capacityW": 725
+    },
+    {
+      "level": 4,
+      "minutes": 30,
+      "baseUSD": 5,
+      "perHashUSD": 0.01,
+      "minHall": 1,
+      "minPlots": null,
+      "bonusPct": null,
+      "hashCap": null,
+      "capacityW": 900
+    },
+    {
+      "level": 5,
+      "minutes": 40,
+      "baseUSD": 12,
+      "perHashUSD": 0.01,
+      "minHall": 1,
+      "minPlots": null,
+      "bonusPct": null,
+      "hashCap": null,
+      "capacityW": 1125
+    },
+    {
+      "level": 6,
+      "minutes": 50,
+      "baseUSD": 12,
+      "perHashUSD": 0.01,
+      "minHall": 1,
+      "minPlots": null,
+      "bonusPct": null,
+      "hashCap": null,
+      "capacityW": 1375
+    },
+    {
+      "level": 7,
+      "minutes": 60,
+      "baseUSD": 12,
+      "perHashUSD": 0.01,
+      "minHall": 1,
+      "minPlots": null,
+      "bonusPct": null,
+      "hashCap": null,
+      "capacityW": 1675
+    },
+    {
+      "level": 8,
+      "minutes": 70,
+      "baseUSD": 12,
+      "perHashUSD": 0.01,
+      "minHall": 1,
+      "minPlots": null,
+      "bonusPct": null,
+      "hashCap": null,
+      "capacityW": 2000
+    },
+    {
+      "level": 9,
+      "minutes": 80,
+      "baseUSD": 12,
+      "perHashUSD": 0.01,
+      "minHall": 1,
+      "minPlots": null,
+      "bonusPct": null,
+      "hashCap": null,
+      "capacityW": 2375
+    },
+    {
+      "level": 10,
+      "minutes": 90,
+      "baseUSD": 30,
+      "perHashUSD": 0.01,
+      "minHall": 1,
+      "minPlots": null,
+      "bonusPct": null,
+      "hashCap": null,
+      "capacityW": 2800
+    },
+    {
+      "level": 11,
+      "minutes": 100,
+      "baseUSD": 30,
+      "perHashUSD": 0.01,
+      "minHall": 1,
+      "minPlots": null,
+      "bonusPct": null,
+      "hashCap": null,
+      "capacityW": 3250
+    },
+    {
+      "level": 12,
+      "minutes": 110,
+      "baseUSD": 30,
+      "perHashUSD": 0.01,
+      "minHall": 1,
+      "minPlots": null,
+      "bonusPct": null,
+      "hashCap": null,
+      "capacityW": 3725
+    },
+    {
+      "level": 13,
+      "minutes": 120,
+      "baseUSD": 30,
+      "perHashUSD": 0.01,
+      "minHall": 1,
+      "minPlots": null,
+      "bonusPct": null,
+      "hashCap": null,
+      "capacityW": 4250
+    }
+  ],
+  "plots": [
+    {
+      "level": 1,
+      "minutes": 0,
+      "baseUSD": 0,
+      "perHashUSD": 0,
+      "minHall": 1,
+      "minPlots": null,
+      "bonusPct": null,
+      "hashCap": null,
+      "capacityW": null
+    },
+    {
+      "level": 2,
+      "minutes": 15,
+      "baseUSD": 5,
+      "perHashUSD": 0.01,
+      "minHall": 1,
+      "minPlots": null,
+      "bonusPct": null,
+      "hashCap": null,
+      "capacityW": null
+    },
+    {
+      "level": 3,
+      "minutes": 30,
+      "baseUSD": 5,
+      "perHashUSD": 0.01,
+      "minHall": 2,
+      "minPlots": null,
+      "bonusPct": null,
+      "hashCap": null,
+      "capacityW": null
+    },
+    {
+      "level": 4,
+      "minutes": 60,
+      "baseUSD": 5,
+      "perHashUSD": 0.01,
+      "minHall": 3,
+      "minPlots": null,
+      "bonusPct": null,
+      "hashCap": null,
+      "capacityW": null
+    },
+    {
+      "level": 5,
+      "minutes": 120,
+      "baseUSD": 5,
+      "perHashUSD": 0.01,
+      "minHall": 4,
+      "minPlots": null,
+      "bonusPct": null,
+      "hashCap": null,
+      "capacityW": null
+    },
+    {
+      "level": 6,
+      "minutes": 240,
+      "baseUSD": 5,
+      "perHashUSD": 0.01,
+      "minHall": 6,
+      "minPlots": null,
+      "bonusPct": null,
+      "hashCap": null,
+      "capacityW": null
+    },
+    {
+      "level": 7,
+      "minutes": 480,
+      "baseUSD": 5,
+      "perHashUSD": 0.01,
+      "minHall": 8,
+      "minPlots": null,
+      "bonusPct": null,
+      "hashCap": null,
+      "capacityW": null
+    },
+    {
+      "level": 8,
+      "minutes": 960,
+      "baseUSD": 5,
+      "perHashUSD": 0.01,
+      "minHall": 10,
+      "minPlots": null,
+      "bonusPct": null,
+      "hashCap": null,
+      "capacityW": null
+    }
+  ],
+  "hall": [
+    {
+      "level": 1,
+      "minutes": 0,
+      "baseUSD": 0,
+      "perHashUSD": 0,
+      "minHall": null,
+      "minPlots": 1,
+      "bonusPct": 0,
+      "hashCap": 900,
+      "capacityW": null
+    },
+    {
+      "level": 2,
+      "minutes": 30,
+      "baseUSD": 5,
+      "perHashUSD": 0.015,
+      "minHall": null,
+      "minPlots": 2,
+      "bonusPct": 6,
+      "hashCap": null,
+      "capacityW": null
+    },
+    {
+      "level": 3,
+      "minutes": 45,
+      "baseUSD": 10,
+      "perHashUSD": 0.015,
+      "minHall": null,
+      "minPlots": 3,
+      "bonusPct": 12,
+      "hashCap": null,
+      "capacityW": null
+    },
+    {
+      "level": 4,
+      "minutes": 60,
+      "baseUSD": 3,
+      "perHashUSD": 0.015,
+      "minHall": null,
+      "minPlots": 4,
+      "bonusPct": 15,
+      "hashCap": null,
+      "capacityW": null
+    },
+    {
+      "level": 5,
+      "minutes": 75,
+      "baseUSD": 3,
+      "perHashUSD": 0.015,
+      "minHall": null,
+      "minPlots": 5,
+      "bonusPct": 18,
+      "hashCap": null,
+      "capacityW": null
+    },
+    {
+      "level": 6,
+      "minutes": 90,
+      "baseUSD": 3,
+      "perHashUSD": 0.015,
+      "minHall": null,
+      "minPlots": 5,
+      "bonusPct": 21,
+      "hashCap": null,
+      "capacityW": null
+    },
+    {
+      "level": 7,
+      "minutes": 105,
+      "baseUSD": 3,
+      "perHashUSD": 0.015,
+      "minHall": null,
+      "minPlots": 6,
+      "bonusPct": 24,
+      "hashCap": null,
+      "capacityW": null
+    },
+    {
+      "level": 8,
+      "minutes": 120,
+      "baseUSD": 3,
+      "perHashUSD": 0.015,
+      "minHall": null,
+      "minPlots": 6,
+      "bonusPct": 27,
+      "hashCap": null,
+      "capacityW": null
+    },
+    {
+      "level": 9,
+      "minutes": 135,
+      "baseUSD": 3,
+      "perHashUSD": 0.015,
+      "minHall": null,
+      "minPlots": 7,
+      "bonusPct": 30,
+      "hashCap": null,
+      "capacityW": null
+    },
+    {
+      "level": 10,
+      "minutes": 150,
+      "baseUSD": 3,
+      "perHashUSD": 0.015,
+      "minHall": null,
+      "minPlots": 7,
+      "bonusPct": 33,
+      "hashCap": null,
+      "capacityW": null
+    },
+    {
+      "level": 11,
+      "minutes": 165,
+      "baseUSD": 3,
+      "perHashUSD": 0.045,
+      "minHall": null,
+      "minPlots": 8,
+      "bonusPct": 36,
+      "hashCap": null,
+      "capacityW": null
+    }
+  ]
+}

@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.6.3 — 2026-10-09
+
+- Preserve a separate expansion search alongside mixed development, avoiding premature pruning of multi-step plot/Hall routes; merge results from the same inputs and expose coverage metadata.
+- Show purchased, reused and removed components; removed parts remain inventory with zero cash value, and later builds consume inventory only once.
+- Apply the same average-wear assumption to existing and new PCs, eliminating the near-fresh-versus-average speed bias. Keep actual monitor income unchanged.
+- Use documented Grain/Pebble care fees, remove the obsolete first-card $25 minimum, and require sealed-box card purchases unless reusing owned inventory.
+- Show the same net ending value used to rank reinvestment plans in headlines and scenario comparisons; retain gross CRH value in cost details.
+- Prevent tiny rounded card-hash differences from inventing free upgrades. Mark saved plans from an earlier model for manual recalculation.
+- Add regressions for a pruned expansion chain, token conservation, component reuse, lower care fees, startup cards and historical-model warnings.
+
+
 ## 1.6.2 — 2026-10-09
 
 - Make plan recalculation manual; preserve successful results and expanded details during stale or temporarily unreconciled observations and failed retries.

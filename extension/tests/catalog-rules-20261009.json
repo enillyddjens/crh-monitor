@@ -1,0 +1,809 @@
+[
+  {
+    "id": "grain",
+    "name": "Grain",
+    "hash": 0.25,
+    "usd": 1,
+    "watts": 5,
+    "minHall": 1,
+    "limit": 1,
+    "includedHours": 24,
+    "recipe": [
+      {
+        "id": "system_grain",
+        "kind": "system",
+        "name": "Grain",
+        "quantity": 1,
+        "usd": 1
+      }
+    ]
+  },
+  {
+    "id": "pebble",
+    "name": "Pebble",
+    "hash": 1.5,
+    "usd": 5,
+    "watts": 20,
+    "minHall": 1,
+    "limit": 1,
+    "includedHours": 24,
+    "recipe": [
+      {
+        "id": "system_pebble",
+        "kind": "system",
+        "name": "Pebble",
+        "quantity": 1,
+        "usd": 5
+      }
+    ]
+  },
+  {
+    "id": "seed",
+    "name": "Seed",
+    "hash": 8.2,
+    "usd": 25,
+    "watts": 77,
+    "minHall": 1,
+    "limit": 1,
+    "includedHours": 24,
+    "recipe": [
+      {
+        "id": "retro_board_775",
+        "kind": "board",
+        "name": "LGA775 P35 Board (DDR2)",
+        "quantity": 1,
+        "usd": 1
+      },
+      {
+        "id": "retro_cpu_q9650",
+        "kind": "cpu",
+        "name": "Intellect Corps 2 Quad Q9650",
+        "quantity": 1,
+        "usd": 1
+      },
+      {
+        "id": "gpu_hd_5770",
+        "kind": "gpu",
+        "name": "AMP Radion HD 5770",
+        "quantity": 1,
+        "usd": 9
+      },
+      {
+        "id": "retro_ram_ddr2_2gb",
+        "kind": "ram",
+        "name": "DDR2-800 2 GB",
+        "quantity": 4,
+        "usd": 1
+      },
+      {
+        "id": "ssd_legacy_64gb",
+        "kind": "ssd",
+        "name": "Legacy 64 GB Drive",
+        "quantity": 1,
+        "usd": 6
+      },
+      {
+        "id": "retro_cooler_tower",
+        "kind": "cooler",
+        "name": "Tower Cooler (LGA775)",
+        "quantity": 1,
+        "usd": 1
+      },
+      {
+        "id": "retro_case_beige",
+        "kind": "case",
+        "name": "Beige ATX Tower",
+        "quantity": 1,
+        "usd": 1
+      },
+      {
+        "id": "retro_psu_100",
+        "kind": "psu",
+        "name": "Office 100 W PSU",
+        "quantity": 1,
+        "usd": 1
+      },
+      {
+        "id": "retro_fan_92",
+        "kind": "fan",
+        "name": "92 mm Case Fan",
+        "quantity": 1,
+        "usd": 1
+      }
+    ]
+  },
+  {
+    "id": "sprout",
+    "name": "Sprout",
+    "hash": 14.94,
+    "usd": 50,
+    "watts": 103,
+    "minHall": 1,
+    "limit": 1,
+    "includedHours": 24,
+    "recipe": [
+      {
+        "id": "retro_board_775",
+        "kind": "board",
+        "name": "LGA775 P35 Board (DDR2)",
+        "quantity": 1,
+        "usd": 1
+      },
+      {
+        "id": "retro_cpu_q9650",
+        "kind": "cpu",
+        "name": "Intellect Corps 2 Quad Q9650",
+        "quantity": 1,
+        "usd": 1
+      },
+      {
+        "id": "gpu_gtx_560_ti",
+        "kind": "gpu",
+        "name": "Novidia GTZ 560 Ti",
+        "quantity": 1,
+        "usd": 30
+      },
+      {
+        "id": "retro_ram_ddr2_2gb",
+        "kind": "ram",
+        "name": "DDR2-800 2 GB",
+        "quantity": 4,
+        "usd": 1
+      },
+      {
+        "id": "ssd_legacy_64gb",
+        "kind": "ssd",
+        "name": "Legacy 64 GB Drive",
+        "quantity": 1,
+        "usd": 6
+      },
+      {
+        "id": "retro_cooler_tower",
+        "kind": "cooler",
+        "name": "Tower Cooler (LGA775)",
+        "quantity": 1,
+        "usd": 1
+      },
+      {
+        "id": "retro_case_beige",
+        "kind": "case",
+        "name": "Beige ATX Tower",
+        "quantity": 1,
+        "usd": 1
+      },
+      {
+        "id": "psu_legacy_150",
+        "kind": "psu",
+        "name": "Legacy 150 W PSU",
+        "quantity": 1,
+        "usd": 5
+      },
+      {
+        "id": "retro_fan_92",
+        "kind": "fan",
+        "name": "92 mm Case Fan",
+        "quantity": 1,
+        "usd": 1
+      }
+    ]
+  },
+  {
+    "id": "sapling",
+    "name": "Sapling",
+    "hash": 19.771,
+    "usd": 100,
+    "watts": 87,
+    "minHall": 1,
+    "limit": null,
+    "includedHours": 24,
+    "recipe": [
+      {
+        "id": "retro_board_775",
+        "kind": "board",
+        "name": "LGA775 P35 Board (DDR2)",
+        "quantity": 1,
+        "usd": 1
+      },
+      {
+        "id": "retro_cpu_q9650",
+        "kind": "cpu",
+        "name": "Intellect Corps 2 Quad Q9650",
+        "quantity": 1,
+        "usd": 1
+      },
+      {
+        "id": "gpu_hd_7850",
+        "kind": "gpu",
+        "name": "AMP Radion HD 7850",
+        "quantity": 1,
+        "usd": 80
+      },
+      {
+        "id": "retro_ram_ddr2_2gb",
+        "kind": "ram",
+        "name": "DDR2-800 2 GB",
+        "quantity": 4,
+        "usd": 1
+      },
+      {
+        "id": "ssd_legacy_64gb",
+        "kind": "ssd",
+        "name": "Legacy 64 GB Drive",
+        "quantity": 1,
+        "usd": 6
+      },
+      {
+        "id": "retro_cooler_tower",
+        "kind": "cooler",
+        "name": "Tower Cooler (LGA775)",
+        "quantity": 1,
+        "usd": 1
+      },
+      {
+        "id": "retro_case_beige",
+        "kind": "case",
+        "name": "Beige ATX Tower",
+        "quantity": 1,
+        "usd": 1
+      },
+      {
+        "id": "psu_legacy_150",
+        "kind": "psu",
+        "name": "Legacy 150 W PSU",
+        "quantity": 1,
+        "usd": 5
+      },
+      {
+        "id": "retro_fan_92",
+        "kind": "fan",
+        "name": "92 mm Case Fan",
+        "quantity": 1,
+        "usd": 1
+      }
+    ]
+  },
+  {
+    "id": "fern",
+    "name": "Fern",
+    "hash": 43.544,
+    "usd": 250,
+    "watts": 89,
+    "minHall": 1,
+    "limit": null,
+    "includedHours": 24,
+    "recipe": [
+      {
+        "id": "legacy_board_1155",
+        "kind": "board",
+        "name": "Legacy LGA1155 Board",
+        "quantity": 1,
+        "usd": 15.75
+      },
+      {
+        "id": "legacy_cpu_i5_2500k",
+        "kind": "cpu",
+        "name": "Intellect Corps i5-2500K",
+        "quantity": 1,
+        "usd": 17.58
+      },
+      {
+        "id": "gpu_legacy_gtx_1050_ti",
+        "kind": "gpu",
+        "name": "Novidia GTZ 1050 Ti",
+        "quantity": 1,
+        "usd": 216.47
+      },
+      {
+        "id": "ram_legacy_4gb",
+        "kind": "ram",
+        "name": "Legacy DDR3 4 GB",
+        "quantity": 1,
+        "usd": 6.18
+      },
+      {
+        "id": "ssd_legacy_64gb",
+        "kind": "ssd",
+        "name": "Legacy 64 GB Drive",
+        "quantity": 1,
+        "usd": 6
+      },
+      {
+        "id": "cooler_legacy_air",
+        "kind": "cooler",
+        "name": "Legacy Air Cooler",
+        "quantity": 1,
+        "usd": 6.56
+      },
+      {
+        "id": "retro_case_beige",
+        "kind": "case",
+        "name": "Beige ATX Tower",
+        "quantity": 1,
+        "usd": 1
+      },
+      {
+        "id": "psu_legacy_150",
+        "kind": "psu",
+        "name": "Legacy 150 W PSU",
+        "quantity": 1,
+        "usd": 5
+      },
+      {
+        "id": "retro_fan_92",
+        "kind": "fan",
+        "name": "92 mm Case Fan",
+        "quantity": 1,
+        "usd": 1
+      }
+    ]
+  },
+  {
+    "id": "grove",
+    "name": "Grove",
+    "hash": 85.161,
+    "usd": 500,
+    "watts": 115,
+    "minHall": 1,
+    "limit": null,
+    "includedHours": 24,
+    "recipe": [
+      {
+        "id": "legacy_board_h61",
+        "kind": "board",
+        "name": "H61 Board (DDR3-1333)",
+        "quantity": 1,
+        "usd": 13.12
+      },
+      {
+        "id": "legacy_cpu_i5_2500k",
+        "kind": "cpu",
+        "name": "Intellect Corps i5-2500K",
+        "quantity": 1,
+        "usd": 17.58
+      },
+      {
+        "id": "starter_gpu",
+        "kind": "gpu",
+        "name": "Novidia RTZ 3050",
+        "quantity": 1,
+        "usd": 472.85
+      },
+      {
+        "id": "ram_legacy_4gb",
+        "kind": "ram",
+        "name": "Legacy DDR3 4 GB",
+        "quantity": 1,
+        "usd": 6.18
+      },
+      {
+        "id": "ssd_legacy_64gb",
+        "kind": "ssd",
+        "name": "Legacy 64 GB Drive",
+        "quantity": 1,
+        "usd": 6
+      },
+      {
+        "id": "cooler_legacy_air",
+        "kind": "cooler",
+        "name": "Legacy Air Cooler",
+        "quantity": 1,
+        "usd": 6.56
+      },
+      {
+        "id": "retro_case_beige",
+        "kind": "case",
+        "name": "Beige ATX Tower",
+        "quantity": 1,
+        "usd": 1
+      },
+      {
+        "id": "psu_legacy_150",
+        "kind": "psu",
+        "name": "Legacy 150 W PSU",
+        "quantity": 1,
+        "usd": 5
+      },
+      {
+        "id": "retro_fan_92",
+        "kind": "fan",
+        "name": "92 mm Case Fan",
+        "quantity": 2,
+        "usd": 1
+      }
+    ]
+  },
+  {
+    "id": "cedar",
+    "name": "Cedar",
+    "hash": 166.76,
+    "usd": 1000,
+    "watts": 159,
+    "minHall": 1,
+    "limit": null,
+    "includedHours": 24,
+    "recipe": [
+      {
+        "id": "board_glacier",
+        "kind": "board",
+        "name": "ACEUS PRIMO B650M-A WIFI II",
+        "quantity": 1,
+        "usd": 111.56
+      },
+      {
+        "id": "cpu_amd_7600",
+        "kind": "cpu",
+        "name": "AMP Risen 5 7600",
+        "quantity": 1,
+        "usd": 278.72
+      },
+      {
+        "id": "starter_gpu",
+        "kind": "gpu",
+        "name": "Novidia RTZ 3050",
+        "quantity": 1,
+        "usd": 472.85
+      },
+      {
+        "id": "ram_lumen_dimm",
+        "kind": "ram",
+        "name": "Kingstone FUROR Beast RGB 8 GB · DDR5-6000 · 1×8",
+        "quantity": 4,
+        "usd": 12.55
+      },
+      {
+        "id": "starter_ssd",
+        "kind": "ssd",
+        "name": "Samsong PM991",
+        "quantity": 1,
+        "usd": 38.02
+      },
+      {
+        "id": "starter_cooler",
+        "kind": "cooler",
+        "name": "Thermalbright Assailant X 120",
+        "quantity": 1,
+        "usd": 13.13
+      },
+      {
+        "id": "case_horizon",
+        "kind": "case",
+        "name": "SilverStorm GD11",
+        "quantity": 1,
+        "usd": 13.04
+      },
+      {
+        "id": "starter_psu",
+        "kind": "psu",
+        "name": "Corsaro CX Series",
+        "quantity": 1,
+        "usd": 26.56
+      },
+      {
+        "id": "starter_fan",
+        "kind": "fan",
+        "name": "Cooler Maestro CycleFlow 120 LED",
+        "quantity": 2,
+        "usd": 7
+      }
+    ]
+  },
+  {
+    "id": "mac_mini",
+    "name": "Mack mini M4 Pro",
+    "hash": 179.553,
+    "usd": 1173.3,
+    "watts": 65,
+    "minHall": 1,
+    "limit": null,
+    "includedHours": 24,
+    "recipe": [
+      {
+        "id": "system_mac_mini_m4_pro",
+        "kind": "system",
+        "name": "Mack mini M4 Pro",
+        "quantity": 1,
+        "usd": 1173.3
+      }
+    ]
+  },
+  {
+    "id": "redwood",
+    "name": "Redwood",
+    "hash": 427.47,
+    "usd": 2500,
+    "watts": 267,
+    "minHall": 1,
+    "limit": null,
+    "includedHours": 24,
+    "recipe": [
+      {
+        "id": "board_glacier",
+        "kind": "board",
+        "name": "ACEUS PRIMO B650M-A WIFI II",
+        "quantity": 1,
+        "usd": 111.56
+      },
+      {
+        "id": "cpu_amd_9600x",
+        "kind": "cpu",
+        "name": "AMP Risen 5 9600X",
+        "quantity": 1,
+        "usd": 340.02
+      },
+      {
+        "id": "gpu_rtx_4080_super",
+        "kind": "gpu",
+        "name": "Novidia RTZ 4080 SUPER · 16 GB",
+        "quantity": 1,
+        "usd": 1846.24
+      },
+      {
+        "id": "ram_ddr5_48_6000_dimm",
+        "kind": "ram",
+        "name": "Q.SKILL Triton Z5 RGB 24 GB · DDR5-6000 · 1×24",
+        "quantity": 2,
+        "usd": 41.21
+      },
+      {
+        "id": "ssd_glacier",
+        "kind": "ssd",
+        "name": "SK lynx Gold P31",
+        "quantity": 1,
+        "usd": 68.67
+      },
+      {
+        "id": "starter_cooler",
+        "kind": "cooler",
+        "name": "Thermalbright Assailant X 120",
+        "quantity": 1,
+        "usd": 13.13
+      },
+      {
+        "id": "case_aurora",
+        "kind": "case",
+        "name": "LIAN LU O11 Dynamic EVO",
+        "quantity": 1,
+        "usd": 35.9
+      },
+      {
+        "id": "psu_snow",
+        "kind": "psu",
+        "name": "Corsaro RM Series",
+        "quantity": 1,
+        "usd": 48.8
+      },
+      {
+        "id": "starter_fan",
+        "kind": "fan",
+        "name": "Cooler Maestro CycleFlow 120 LED",
+        "quantity": 4,
+        "usd": 7
+      }
+    ]
+  },
+  {
+    "id": "canopy",
+    "name": "Canopy",
+    "hash": 871.114,
+    "usd": 5000,
+    "watts": 395,
+    "minHall": 1,
+    "limit": null,
+    "includedHours": 24,
+    "recipe": [
+      {
+        "id": "board_trx50",
+        "kind": "board",
+        "name": "ACEUS Pro WS TRX50-SAGA WIFI",
+        "quantity": 1,
+        "usd": 140
+      },
+      {
+        "id": "cpu_tr_9970x",
+        "kind": "cpu",
+        "name": "AMP Risen Threadrunner 9970X",
+        "quantity": 1,
+        "usd": 2696.89
+      },
+      {
+        "id": "gpu_rtx_5080",
+        "kind": "gpu",
+        "name": "Novidia RTZ 5080 · 16 GB",
+        "quantity": 1,
+        "usd": 2134.82
+      },
+      {
+        "id": "ram_ddr5_16_5200_dimm",
+        "kind": "ram",
+        "name": "Corsaro VENDETTA RGB 8 GB · DDR5-5200 · 1×8",
+        "quantity": 2,
+        "usd": 10.56
+      },
+      {
+        "id": "starter_ssd",
+        "kind": "ssd",
+        "name": "Samsong PM991",
+        "quantity": 1,
+        "usd": 38.02
+      },
+      {
+        "id": "cooler_xe360_tr5",
+        "kind": "cooler",
+        "name": "SilverStorm XE360-TR5",
+        "quantity": 1,
+        "usd": 324.26
+      },
+      {
+        "id": "case_meshify_xl",
+        "kind": "case",
+        "name": "Fractional Design Meshly 2 XL",
+        "quantity": 1,
+        "usd": 80.68
+      },
+      {
+        "id": "psu_snow_600",
+        "kind": "psu",
+        "name": "Corsaro RMx Series",
+        "quantity": 1,
+        "usd": 105
+      },
+      {
+        "id": "starter_fan",
+        "kind": "fan",
+        "name": "Cooler Maestro CycleFlow 120 LED",
+        "quantity": 5,
+        "usd": 7
+      }
+    ]
+  },
+  {
+    "id": "sequoia",
+    "name": "Sequoia",
+    "hash": 1759.488,
+    "usd": 10000,
+    "watts": 348,
+    "minHall": 2,
+    "limit": null,
+    "includedHours": 24,
+    "recipe": [
+      {
+        "id": "starter_board",
+        "kind": "board",
+        "name": "MZI PRO B650M-B",
+        "quantity": 1,
+        "usd": 73.5
+      },
+      {
+        "id": "cpu_amd_7700",
+        "kind": "cpu",
+        "name": "AMP Risen 7 7700",
+        "quantity": 1,
+        "usd": 393.37
+      },
+      {
+        "id": "gpu_rtx_pro_6000",
+        "kind": "gpu",
+        "name": "Novidia RTZ PRO 6000 Blackwall · 96 GB",
+        "quantity": 1,
+        "usd": 9397.53
+      },
+      {
+        "id": "ram_ddr5_32_5600_dimm",
+        "kind": "ram",
+        "name": "Corsaro VENDETTA RGB 16 GB · DDR5-5600 · 1×16",
+        "quantity": 2,
+        "usd": 25.19
+      },
+      {
+        "id": "starter_ssd",
+        "kind": "ssd",
+        "name": "Samsong PM991",
+        "quantity": 1,
+        "usd": 38.02
+      },
+      {
+        "id": "starter_cooler",
+        "kind": "cooler",
+        "name": "Thermalbright Assailant X 120",
+        "quantity": 1,
+        "usd": 13.13
+      },
+      {
+        "id": "case_apex",
+        "kind": "case",
+        "name": "JONSBRO MOD-3",
+        "quantity": 1,
+        "usd": 61.74
+      },
+      {
+        "id": "psu_snow_600",
+        "kind": "psu",
+        "name": "Corsaro RMx Series",
+        "quantity": 1,
+        "usd": 105
+      },
+      {
+        "id": "fan_135",
+        "kind": "fan",
+        "name": "Cooler Maestro CycleFlow 120 LED Legacy",
+        "quantity": 3,
+        "usd": 12.76
+      }
+    ]
+  },
+  {
+    "id": "hyperion",
+    "name": "Hyperion",
+    "hash": 2687.066,
+    "usd": 15000,
+    "watts": 493,
+    "minHall": 2,
+    "limit": null,
+    "includedHours": 24,
+    "recipe": [
+      {
+        "id": "board_trx50",
+        "kind": "board",
+        "name": "ACEUS Pro WS TRX50-SAGA WIFI",
+        "quantity": 1,
+        "usd": 140
+      },
+      {
+        "id": "cpu_tr_9980x",
+        "kind": "cpu",
+        "name": "AMP Risen Threadrunner 9980X",
+        "quantity": 1,
+        "usd": 5084.88
+      },
+      {
+        "id": "gpu_rtx_pro_6000",
+        "kind": "gpu",
+        "name": "Novidia RTZ PRO 6000 Blackwall · 96 GB",
+        "quantity": 1,
+        "usd": 9397.53
+      },
+      {
+        "id": "ram_rdimm_64_6400",
+        "kind": "ram",
+        "name": "Kingstone FUROR Renegado Pro 64 GB · DDR5-6400 ECC RDIMM · 1×64",
+        "quantity": 4,
+        "usd": 123.8
+      },
+      {
+        "id": "ssd_9100_pro",
+        "kind": "ssd",
+        "name": "Samsong 9100 PRO 4 TB",
+        "quantity": 1,
+        "usd": 123.2
+      },
+      {
+        "id": "cooler_xe360_tr5",
+        "kind": "cooler",
+        "name": "SilverStorm XE360-TR5",
+        "quantity": 1,
+        "usd": 324.26
+      },
+      {
+        "id": "case_meshify_xl",
+        "kind": "case",
+        "name": "Fractional Design Meshly 2 XL",
+        "quantity": 1,
+        "usd": 80.68
+      },
+      {
+        "id": "psu_snow_600",
+        "kind": "psu",
+        "name": "Corsaro RMx Series",
+        "quantity": 1,
+        "usd": 105
+      },
+      {
+        "id": "fan_135",
+        "kind": "fan",
+        "name": "Cooler Maestro CycleFlow 120 LED Legacy",
+        "quantity": 6,
+        "usd": 12.76
+      }
+    ]
+  }
+]

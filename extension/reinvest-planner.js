@@ -17,7 +17,7 @@
   const wallet=includeWallet?m.balance:0,total=wallet+claimable;
   return{wallet,claimable,total,usd:total*m.price,price:m.price,hourly:C.units(s.hourlyWei),includeWallet,chainAt:data.chain.at,gameAt:s.seenAt,eth:C.units(data.chain.ethWei),ledgerAt:ledger.at};
  }
- function plan(ctx){
+ function search(ctx,policy='mixed'){
   const {data,o,now,s,m,cards,tables,pcs,inventory,record,payout,baselineHash,islandHash,jobPrice,tariff,budget,others,configured}=ctx;
   const funds=funding(data,now,o.includeWallet);if(funds.error)return{error:funds.error,options:o,plans:[]};
   const w=C.cleanSettings(data.settings).wallet,records=data.ledgers[w].records,mean=a=>a.length?a.reduce((n,v)=>n+v,0)/a.length:null;
@@ -79,19 +79,19 @@
    if(spec.kind==='off'||spec.kind==='on'){const p=st.pcs[spec.index];if(!p||p.on===(spec.kind==='on'))return null;return{usd:0,readyDay:st.t,type:spec.kind,name:p.name,index:spec.index};}
    const c=cards.find(c=>c.id===spec.cardId);if(!c)return null;const cap=tables.hall.find(l=>l.level===st.hall)?.hashCap;
    if((cap!==null&&cap!==undefined&&c.hash>cap)||(cap===undefined&&c.minHall>st.hall)||(spec.mode==='ready'&&c.minHall>st.hall))return null;
-   if(!st.pcs.length&&(spec.mode==='parts'||c.usd<25))return null;
+   if(!st.pcs.length&&spec.mode==='parts')return null;
    if(spec.mode==='ready'&&c.limit!==null&&(!(c.id in st.owned)||st.owned[c.id]>=c.limit))return null;
    const replace=spec.index;if(replace===-1&&st.pcs.length>=st.plots||replace>=st.pcs.length)return null;
-   if(replace>=0&&c.hash<=st.pcs[replace].healthy&&c.watts>=st.pcs[replace].watts)return null;
-   const inv={...st.inventory},pp=st.pcs.slice();if(replace>=0)for(const p of pp[replace].parts)inv[p.id]=(inv[p.id]||0)+p.quantity;
-   let usd=c.usd;if(spec.mode==='parts'){usd=0;for(const p of c.recipe){const used=Math.min(inv[p.id]||0,p.quantity);inv[p.id]=(inv[p.id]||0)-used;usd+=(p.quantity-used)*p.usd;}}
+   if(replace>=0&&c.hash<=st.pcs[replace].healthy+.001&&c.watts>=st.pcs[replace].watts)return null;
+   const pp=st.pcs.slice(),flow=ctx.componentFlow(st.inventory,replace>=0?pp[replace].parts:[],c.recipe,spec.mode),inv=flow.inventory,usd=spec.mode==='parts'?flow.partsCostUSD:c.usd;
+   if(spec.mode==='parts'&&c.recipe.some(p=>p.kind==='system')&&flow.purchasedParts.length)return null;
    const pc={id:'planned-'+st.actions.length,name:c.name+' / '+spec.mode,healthy:c.hash,hash:c.hash*.925,watts:c.watts,care:spec.mode==='parts'?ctx.careCost(c.recipe,c.partsUSD):c.careDaily,on:true,parts:c.recipe};if(replace>=0)pp[replace]=pc;else pp.push(pc);
    const capacity=tables.power.find(l=>l.level===st.power)?.capacityW;if(capacity===null||capacity===undefined||pp.reduce((n,p)=>n+p.watts,0)>capacity)return null;
-   return{usd,readyDay:st.t,type:'pc',mode:spec.mode,name:c.name,recipe:c.recipe,replace:replace>=0?st.pcs[replace].name:null,pcs:pp,inventory:inv,card:c,index:replace};
+   return{usd,readyDay:st.t,type:'pc',mode:spec.mode,name:c.name,recipe:c.recipe,purchasedParts:flow.purchasedParts,reusedParts:flow.reusedParts,storedParts:flow.storedParts,replace:replace>=0?st.pcs[replace].name:null,pcs:pp,inventory:inv,card:c,index:replace};
   }
   function execute(st,spec,details){const before=balance(st),payment=pay(st,details.usd,'capital');if(!payment)return null;
    if(details.job)st.pending.push(details.job);else if(spec.kind==='off'||spec.kind==='on')st.pcs=st.pcs.map((p,i)=>i===spec.index?{...p,on:spec.kind==='on'}:p);else{st.pcs=details.pcs;st.inventory=details.inventory;st.record=Math.max(st.record,st.pcs.reduce((n,p)=>n+p.healthy,0));if(spec.mode==='ready'){st.owned[details.card.id]=(st.owned[details.card.id]||0)+1;st.energyKwh+=details.card.watts*(details.card.includedHours??0)/1000;}}
-   st.actions.push({type:details.type,level:details.level,mode:details.mode,name:details.name,recipe:details.recipe,replace:details.replace,usd:details.usd,atDay:st.t,readyDay:details.readyDay,priceUSD:priceAt(st.t),tokens:payment.tokens,fundsBeforeCRH:before,fundsAfterCRH:balance(st),reserveUSD:reserveUSD(st),spec:{...spec}});settle(st);return st;
+   st.actions.push({type:details.type,level:details.level,mode:details.mode,name:details.name,recipe:details.recipe,purchasedParts:details.purchasedParts,reusedParts:details.reusedParts,storedParts:details.storedParts,replace:details.replace,usd:details.usd,atDay:st.t,readyDay:details.readyDay,priceUSD:priceAt(st.t),tokens:payment.tokens,fundsBeforeCRH:before,fundsAfterCRH:balance(st),reserveUSD:reserveUSD(st),spec:{...spec}});settle(st);return st;
   }
   function possible(st,spec){
    const future=projected(st);if(['hall','plot','power'].includes(spec.kind)){const list=tables[spec.kind==='plot'?'plots':spec.kind],j=list.find(l=>l.level===spec.target);return !!j&&(j.minHall??1)<=future.hall&&(j.minPlots??1)<=future.plots;}
@@ -108,7 +108,7 @@
      }}const next=Math.min(o.days,(Math.floor(st.t/STEP+EPS)+1)*STEP,st.pending.length?Math.min(...st.pending.map(j=>j.end)):Infinity);st=advance(st,next>st.t+EPS?next:st.t+STEP);}
    return null;
   }
-  function specs(st){const out=[],future=projected(st);if(scenario?.meta.liquidityFails)return out; for(const kind of ['plot','power','hall'])out.push({kind,target:future[kind==='plot'?'plots':kind]+1});for(let index=0;index<st.pcs.length;index++)out.push({kind:st.pcs[index].on?'off':'on',index});for(const c of cards)for(const mode of ['parts','ready']){if(mode==='ready'&&c.limit!==null&&(!(c.id in st.owned)||st.owned[c.id]>=c.limit))continue;for(const index of [...(st.pcs.length<8?[-1]:[]),...st.pcs.map((_,i)=>i)]){if(index>=0&&c.hash<=st.pcs[index].healthy&&c.watts>=st.pcs[index].watts)continue;out.push({kind:'pc',cardId:c.id,mode,index});}}return out;}
+  function specs(st){const out=[],future=projected(st);if(scenario?.meta.liquidityFails)return out; for(const kind of ['plot','power','hall'])out.push({kind,target:future[kind==='plot'?'plots':kind]+1});for(let index=0;index<st.pcs.length;index++)out.push({kind:st.pcs[index].on?'off':'on',index});for(const c of cards)for(const mode of ['parts','ready']){if(mode==='ready'&&c.limit!==null&&(!(c.id in st.owned)||st.owned[c.id]>=c.limit))continue;for(const index of [...(st.pcs.length<8?[-1]:[]),...st.pcs.map((_,i)=>i)]){if(index>=0&&c.hash<=st.pcs[index].healthy+.001&&c.watts>=st.pcs[index].watts)continue;out.push({kind:'pc',cardId:c.id,mode,index});}}return policy==='expansion'?out.filter(spec=>spec.kind!=='pc'||spec.index===-1):out;}
   function signature(st){return JSON.stringify([Math.round(st.t/STEP),st.pcs.map(p=>[p.name,p.on]),st.hall,st.plots,st.power,st.pending,Object.entries(st.inventory).sort(),Object.entries(st.owned).sort(),st.record]);}
   const resources=st=>({tokens:balance(st),wallet:st.wallet,energy:st.energyKwh,eth:st.eth,careDue:st.careDue,careGasUnits:st.careGasUnits});
   const dominates=(a,b)=>a.tokens+EPS>=b.tokens&&a.wallet+EPS>=b.wallet&&a.energy+EPS>=b.energy&&a.eth+1e-14>=b.eth&&a.careDue<=b.careDue+EPS&&a.careGasUnits<=b.careGasUnits+EPS;
@@ -123,8 +123,18 @@
    next.sort((a,b)=>rank(b)-rank(a));const keys=new Set(),diverse=[];for(const r of next){const k=keyFor(r.state);if(!keys.has(k)){keys.add(k);diverse.push(r.state);}if(diverse.length>=WIDTH)break;}beam=diverse;
    best.sort((a,b)=>rank(b)-rank(a));best.splice(300);if(truncated)break;
   }
-  best.sort((a,b)=>rank(b)-rank(a));const selected=[],endKeys=new Set();for(const r of best){if(r.state.actions.length&&(r.estimate.careShortfallUSD>EPS||r.estimate.pausedHours>EPS))continue;const k=keyFor(r.finalState||r.state);if(endKeys.has(k))continue;endKeys.add(k);let replay=clone(initial);replay.trace=[point(replay)];for(const a of r.state.actions){replay=advance(replay,a.atDay,true);const detail=describe(replay,a.spec);if(!detail||!execute(replay,a.spec,detail))throw Error('Reinvestment replay did not reconcile');replay.trace.push(point(replay));}const final=finish(replay,true);final.estimate.score=final.estimate.liquidUSD-baseline.estimate.liquidUSD;selected.push({...final.state,estimate:final.estimate});if(selected.length===3)break;}
+  best.sort((a,b)=>rank(b)-rank(a));const selected=[],endKeys=new Set();for(const r of best){if(r.state.actions.length&&(r.estimate.careShortfallUSD>EPS||r.estimate.pausedHours>EPS))continue;const k=keyFor(r.finalState||r.state);if(endKeys.has(k))continue;endKeys.add(k);let replay=clone(initial);replay.trace=[point(replay)];for(const a of r.state.actions){replay=advance(replay,a.atDay,true);const detail=describe(replay,a.spec);if(!detail||!execute(replay,a.spec,detail))throw Error('Reinvestment replay did not reconcile');replay.trace.push(point(replay));}const final=finish(replay,true);final.estimate.score=final.estimate.liquidUSD-baseline.estimate.liquidUSD;selected.push({...final.state,searchPolicy:policy,estimate:final.estimate});if(selected.length===3)break;}
   return{asOf:s.seenAt,computedAt:now,options:o,plans:selected,examined,missingCards:ctx.missing,waitDays:0,baselineHash:islandHash(pcs,s.hall,tables),payout,catalogAt:ctx.cat.seenAt,scenario:scenario?.meta??null,model:scenario?'reinvest-scenarios-pool-beam20-depth24-limit18000-step30m':'reinvest-beam20-depth24-limit18000-step30m',price:m.price,endPrice:priceAt(o.days),globalHash:s.totalHash,funding:funds,baseline:baseline.estimate,truncated,gasPriceUSD:nativePrice,stepMinutes:30};
+ }
+ function plan(ctx){
+  const mixed=search(ctx,'mixed');if(mixed.error||mixed.scenario?.liquidityFails)return mixed;
+  // Construction chains can lose short-term beam ranking before a later plot/PC pays back.
+  // Keep an independent expansion pass, then compare both passes on the same frozen inputs.
+  const expansion=search(ctx,'expansion');if(expansion.error)return expansion;
+  const rank=p=>ctx.o.goal==='hash'?(p.estimate.safe?p.estimate.hash:0)*1000000+p.estimate.liquidUSD:p.estimate.liquidUSD;
+  const candidates=[...mixed.plans,...expansion.plans].sort((a,b)=>rank(b)-rank(a)),plans=[],seen=new Set();
+  for(const p of candidates){const k=JSON.stringify([p.pcs.map(pc=>[pc.healthy,pc.watts,pc.on]).sort(),p.hall,p.plots,p.power]);if(seen.has(k))continue;seen.add(k);plans.push(p);if(plans.length===3)break;}
+  return{...mixed,plans,examined:mixed.examined+expansion.examined,truncated:mixed.truncated||expansion.truncated,searches:[mixed,expansion].map((r,i)=>({policy:i?'expansion':'mixed',examined:r.examined,truncated:r.truncated,bestLiquidUSD:r.plans[0]?.estimate.liquidUSD,bestHash:r.plans[0]?.estimate.hash})),model:(mixed.scenario?'reinvest-scenarios-pool':'reinvest')+'-mixed-expansion-beam20-depth24-limit36000-step30m'};
  }
  const api={funding,plan};globalThis.CRHReinvest=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })();

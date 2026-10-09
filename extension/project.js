@@ -17,6 +17,8 @@
  function recipe(v){return Array.isArray(v)?v.slice(0,60).map(c=>{const p=c.product||c;return{id:text(p.id),name:text(p.name),kind:text(p.kind),usd:number(p.usd)??(number(p.price_usd_micro)===null?null:Number(p.price_usd_micro)/1e6),quantity:Math.max(1,Math.min(16,Math.floor(number(c.quantity)??1)))};}).filter(p=>p.id&&p.kind&&p.usd!==null):[];}
  function careCost(parts,pcValue){
    if(!parts.length)return null;let paste=0,fans=0,repairs=0;
+   const sealed=parts.length===1&&parts[0].kind==='system'?parts[0]:null,small=sealed&&({system_grain:{usd:1,paste:.01,clean:.01,repair:.02},system_pebble:{usd:5,paste:.05,clean:.04,repair:.1}})[sealed.id];
+   if(small&&sealed.usd===small.usd)return small.paste*(1/2.4+1/3.2)+small.clean/2+small.repair/14;
    for(const p of parts){if(p.kind==='cpu')paste+=Math.max(.25,.002*p.usd)/2.4;if(p.kind==='gpu')paste+=Math.max(.25,.002*p.usd)/3.2;if(p.kind==='system')paste+=Math.max(.25,.002*p.usd)*(1/2.4+1/3.2);if(p.kind==='fan')fans+=p.quantity;if(p.kind!=='case')repairs+=Math.max(.1,.02*p.usd)*p.quantity/14;}
    return paste+(fans?Math.max(.2* fans,.0001*pcValue)/2:parts.some(p=>p.kind==='system')?Math.max(.2,.0001*pcValue)/2:0)+repairs;
  }
