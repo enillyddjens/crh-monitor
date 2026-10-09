@@ -25,3 +25,5 @@ test('installed RAM and fans with omitted slot IDs still count toward care and r
 test('refreshes after launch do not restart the public-launch shock',()=>{const d=fixture(),o=B.options({scenario:'launch'}),after=now+29*3600000,a=S.compile(d,o,after);assert.equal(a.meta.launchAt,S.LAUNCH);assert.equal(a.externalAt(0),990);assert(a.externalAt(1)<990*2);assert(a.priceAt(0)===.01);});
 
 test('your modeled payments replenish next-day rewards without changing today emission',()=>{const d=fixture();d.chain.balanceWei=q(5000);d.ledgers[w].records[0].quantityWei=q(7500);const r=run(d),market=S.compile(d,r.options,now),p=r.plans[0];assert(!r.error);assert(p.spentCRH>0);assert(p.trace.filter(x=>x.day<5/24-1e-8).every(x=>x.budgetCRH===60000));assert(p.trace.some(x=>x.day>5/24&&x.budgetCRH>market.at(x.day).budgetCRH));assert(p.ownPool+p.poolPending<=p.spentCRH*.6+1e-6);});
+
+test('a named scenario never silently falls back to manual percentages when pool rules are missing',()=>{const d=fixture();delete d.games[w].rateBps;const r=run(d);assert.equal(r.error,'fresh-data');assert.equal(r.plans.length,0);});

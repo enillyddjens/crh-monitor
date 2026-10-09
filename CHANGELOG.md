@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.6.1 — 2026-10-09
+
+- Require known pool release rules for a named scenario; incomplete snapshots return a fresh-data message instead of silently using legacy manual percentages.
+
+
 ## 1.6.0 — 2026-10-09
 
 - Replace manual scenario inputs with four project paths and an all-scenario comparison, with 3/5/7/10-day horizons and Russian/English labels.

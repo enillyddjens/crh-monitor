@@ -28,6 +28,7 @@
   const gasAction=nativeAction*1.25,gasClaim=nativeClaim*1.25;
   const steps=Math.ceil(o.days/STEP),firstReset=s.dayEnd>now?Math.min(1,(s.dayEnd-now)/DAY):1;
   const S=globalThis.CRHScenarios||(typeof require==='function'?require('./scenarios.js'):null),scenario=S.compile(data,o,now);
+  if(o.scenario&&!scenario)return{error:'fresh-data',options:o,plans:[]};
   const prices=[],rates=[],external=[];
   for(let i=0;i<=steps;i++){const t=Math.min(o.days,i*STEP),gameDays=t<firstReset-EPS?0:1+Math.floor(Math.max(0,t-firstReset+EPS));prices[i]=m.price*Math.pow(1+o.priceEndPct/100,t/o.days);rates[i]=budget*Math.pow(1+o.budgetDailyPct/100,gameDays);external[i]=others*Math.pow(1+o.hashDailyPct/100,t);}
   const priceAt=t=>scenario?scenario.priceAt(t):prices[Math.min(steps,Math.round(t/STEP))],rateAt=(hash,t,st)=>{const i=Math.min(steps,Math.floor(t/STEP)),v=scenario?.at(t);return ((v?.budgetCRH??rates[i])+(st?.ownBudget??0))*hash/Math.max(EPS,(v?.externalHash??external[i])+hash)*payout;};

@@ -25,6 +25,7 @@
    if(!(budget>0)||!(s.totalHash>0)||!(tariff>=0))return{error:'fresh-data',options:o,plans:[]};
    const payout=currentHash>0&&m.dailyTokens!==null?Math.min(1,Math.max(0,m.dailyTokens/(budget*currentHash/s.totalHash))):1,fee=1-configured.sellFeePct/100;
    const S=globalThis.CRHScenarios||(typeof require==='function'?require('./scenarios.js'):null),scenario=S.compile(data,o,now);
+  if(o.scenario&&!scenario)return{error:'fresh-data',options:o,plans:[]};
    const priceAt=t=>scenario?scenario.priceAt(t):price*Math.pow(1+o.priceEndPct/100,t/o.days),rewardsAt=t=>scenario?scenario.at(t).budgetCRH:budget*Math.pow(1+o.budgetDailyPct/100,t),externalAt=t=>scenario?scenario.externalAt(t):others*Math.pow(1+o.hashDailyPct/100,t);
    const income=(hash,t)=>rewardsAt(t)*hash/Math.max(1e-9,externalAt(t)+hash)*priceAt(t)*payout*fee;
    const costPerDay=pp=>pp.filter(p=>p.on).reduce((n,p)=>n+p.watts*24/1000*tariff+p.care,0);
