@@ -1,6 +1,6 @@
 Publish the six posts in thread-en.txt as a thread, in order.
 
-1/6: attach crh-monitor-demo.mp4 (27 seconds, silent, English on-screen captions).
+1/6: attach crh-monitor-demo.mp4 (27 seconds, English narration, quiet original instrumental background and English on-screen captions).
 2/6: attach 02-install.png.
 3/6: attach 03-setup.png.
 4/6: attach 04-transactions.png.
@@ -13,3 +13,6 @@ Suggested video alt text: CRH Monitor demo showing PnL, income, pool, project tr
 
 For future updates, share the releases/latest URL so users find the current ZIP.
 Unpacked extensions update manually: replace files in the same folder, click Reload on the extension, then refresh game tabs.
+
+The English narration script and synchronized subtitles are included as narration-en.txt and narration-en.srt.
+Music is an original synthesized ambient composition; it is lowered under speech and fades at the beginning and end.

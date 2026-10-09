@@ -1,0 +1,8 @@
+Track your wallet and mining income.
+Check rewards and your mining share.
+Open Project for trends and hourly leaderboards.
+Review purchases and upgrade prices in Transactions.
+Switch between English and Russian.
+Set selling fees and care costs.
+Export your history as JSON.
+Download C R H Monitor on GitHub.

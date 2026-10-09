@@ -1,4 +1,4 @@
-1/6 I built CRH Monitor for @ComputersRh: a read-only Chrome/Edge extension for wallet PnL, mining income and project dynamics. English + Russian. Here is a 27-second walkthrough with demo data.
+1/6 I built CRH Monitor for @ComputersRh: a read-only Chrome/Edge extension for wallet PnL, mining income and project dynamics. English + Russian. Here is a 27-second walkthrough with English narration and demo data.
 
 2/6 Install: download the ZIP from GitHub Releases and extract it. Open chrome://extensions (or edge://extensions), enable Developer mode, then Load unpacked and choose the crh-monitor folder. Reload the game.
 

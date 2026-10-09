@@ -1,0 +1,31 @@
+1
+00:00:00,200 --> 00:00:02,213
+Track your wallet and mining income.
+
+2
+00:00:02,850 --> 00:00:04,861
+Check rewards and your mining share.
+
+3
+00:00:05,650 --> 00:00:08,595
+Open Project for trends and hourly leaderboards.
+
+4
+00:00:09,650 --> 00:00:13,006
+Review purchases and upgrade prices in Transactions.
+
+5
+00:00:13,950 --> 00:00:15,888
+Switch between English and Russian.
+
+6
+00:00:16,750 --> 00:00:18,902
+Set selling fees and care costs.
+
+7
+00:00:19,750 --> 00:00:21,716
+Export your history as JSON.
+
+8
+00:00:22,200 --> 00:00:24,756
+Download C R H Monitor on GitHub.
