@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.5.0
+
+- Reinvestment-only development planner: wallet balance (optional), claimable rewards and future mining fund sequential steps without new deposits.
+- CRH payment-time conservation, native ETH gas bounds, current game-day payout calibration and scenario-based price/hash/reward changes.
+- Builder-queue completion, prospective queue gates, inventory reuse and operating reserves with 12-hour energy refills and average care.
+- Choose ending CRH value or hashrate; see next steps, accumulation/payment/completion times, post-payment balances and daily projections.
+- Fresh reconciled funding guards, no-earning-without-energy checks and explicit mining interruption reporting.
+- Five-minute recalculation on a visible reinvestment tab, per-wallet preferences and forecast export with source times and assumptions.
+- Unknown installed components no longer silently reduce care estimates; overview care notices stay with the overview.
+- RU/EN documentation and regression coverage; deterministic hourly-archive test clock.
+
+
 ## 1.4.0
 
 - Separate Initial investment and Investment + reinvestment amounts, including reward-funded electricity and care.

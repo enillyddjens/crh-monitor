@@ -1,6 +1,6 @@
 (() => {
  "use strict";
- const C=CRHMonitor,L=CRHLedger,I=CRHI18n,compact=document.body.classList.contains("popup"),keys=["settings","games","chain","market","history","ledgers","orders","corrections","focusTx","project","priceHistory","priceFeed","accountDynamics","plannerPrefs"];
+ const C=CRHMonitor,L=CRHLedger,I=CRHI18n,compact=document.body.classList.contains("popup"),keys=["settings","games","chain","market","history","ledgers","orders","corrections","focusTx","project","priceHistory","priceFeed","accountDynamics","plannerPrefs","plannerForecasts"];
  let data={},editing=null,lang=I.language({});
  const t=key=>I.t(key,lang),fmt=(n,d)=>I.fmt(n,d,lang);
  const $=id=>document.getElementById(id);
@@ -85,7 +85,7 @@
  function CRHPriceObservations(){return (data.priceHistory||[]).filter(s=>s.source==='dexscreener'&&s.token===C.TOKEN.toLowerCase()).map(s=>({at:s.at,priceUSD:s.priceUSD,source:s.source,token:s.token,chainId:s.chainId,pair:s.pair}));}
  $("export")?.addEventListener('click',async()=>{
    await load();const settings=C.cleanSettings(data.settings),w=settings.wallet;if(!w)return;
-   const exported={format:'crh-monitor-v3',extensionVersion:chrome.runtime.getManifest().version,uiLanguage:lang,timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone,exportedAt:new Date().toISOString(),wallet:w,accounting:C.position(settings),game:data.games?.[w]??null,chain:data.chain?.wallet===w?data.chain:null,ledger:data.ledgers?.[w]??null,corrections:data.corrections?.[w]??{},orders:data.orders?.[w]??{},observations:(data.history||[]).filter(s=>s.wallet===w),investmentSummary:investmentSummary(settings,w),priceObservations:CRHPriceObservations(),positionObservations:data.accountDynamics?.[w]??[],plannerOptions:data.plannerPrefs?.[w]??null,project:CRHProject.clean(data.project)};
+   const exported={format:'crh-monitor-v3',extensionVersion:chrome.runtime.getManifest().version,uiLanguage:lang,timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone,exportedAt:new Date().toISOString(),wallet:w,accounting:C.position(settings),game:data.games?.[w]??null,chain:data.chain?.wallet===w?data.chain:null,ledger:data.ledgers?.[w]??null,corrections:data.corrections?.[w]??{},orders:data.orders?.[w]??{},observations:(data.history||[]).filter(s=>s.wallet===w),investmentSummary:investmentSummary(settings,w),priceObservations:CRHPriceObservations(),positionObservations:data.accountDynamics?.[w]??[],plannerOptions:data.plannerPrefs?.[w]??null,plannerForecast:data.plannerForecasts?.[w]??null,project:CRHProject.clean(data.project)};
    const url=URL.createObjectURL(new Blob([JSON.stringify(exported,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;const date=new Date(),pad=v=>String(v).padStart(2,'0');a.download='crh-monitor-'+date.getFullYear()+'-'+pad(date.getMonth()+1)+'-'+pad(date.getDate())+'-'+pad(date.getHours())+pad(date.getMinutes())+'-'+w.slice(2,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
  });
  chrome.storage.onChanged.addListener((changes,area)=>{if(area!=='local')return;for(const [k,v]of Object.entries(changes))data[k]=v.newValue;applyLanguage();view.render(data);if(changes.focusTx)focusEntry().catch(()=>{})});

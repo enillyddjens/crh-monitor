@@ -1,4 +1,4 @@
-# CRH Monitor 1.4.0
+# CRH Monitor 1.5.0
 
 An independent, read-only browser extension for **Computers RH**. Track your CRH position and follow the game's economy without keeping a spreadsheet.
 
@@ -10,7 +10,7 @@ An independent, read-only browser extension for **Computers RH**. Track your CRH
 
 ## Install
 
-1. Download **crh-monitor-v1.4.0.zip** from GitHub Releases and extract it.
+1. Download **crh-monitor-v1.5.0.zip** from GitHub Releases and extract it.
 2. Open `chrome://extensions` or `edge://extensions` and enable **Developer mode**.
 3. Choose **Load unpacked** and select the extracted **crh-monitor** folder containing `manifest.json`.
 4. Pin the extension icon and reload your [Computers RH game tab](https://www.computersrh.xyz/play/island).
@@ -72,11 +72,23 @@ The public [DEX Screener API](https://docs.dexscreener.com/api/reference) provid
 
 **Analytics** adds personal-share history, ranked-island growth, new entries in the top 100 and detected hash-activity spikes. **Dilution at unchanged personal hash** isolates the effect of project growth from your own upgrades. A negative dilution means the project shrank and your hypothetical share increased. Ranked islands are not unique humans; entering the top 100 does not prove a new account. Spikes require adjacent observations no more than 30 minutes apart, so collection gaps do not create false bursts. Account-position observations are sampled every 10 minutes and retained up to 30 days for each wallet.
 
-In **Budget**, enter an available USD budget and a 1–30 day horizon. The planner compares ready PCs, the same verified recipes assembled from parts, inventory reuse, replacements, on/off decisions and builder upgrades. It uses observed server prices, timing, Hall/plot prerequisites, hash-record pricing, shared grid reservation and matching bonuses. It reserves energy, care and estimated gas for the full horizon; projected rewards do not finance further actions. Included card energy is credited only against electricity. Planned purchases start after the current paid builder queue.
+In **Budget**, enter an available USD budget and a 1–30 day horizon. The planner compares ready PCs, the same verified recipes assembled from parts, inventory reuse, replacements, on/off decisions and builder upgrades. It uses observed server prices, timing, Hall/plot prerequisites, hash-record pricing, shared grid reservation and matching bonuses. It reserves energy, care and estimated gas for the full horizon; in Fixed budget mode, projected rewards do not finance further actions. Included card energy is credited only against electricity. Planned purchases start after the current paid builder queue.
 
 The displayed result is **incremental profit/loss versus keeping the current PCs**, after new hardware and construction costs. Care assumes paste at 80% lifetime, cleaning every 48 hours and repairs every 14 days, with 92.5% average speed for newly installed PCs. Selling fees come from settings; gas is estimated from known game payments and claims. The scenario controls set price change, other-island hash growth and daily reward-budget change. Default 10% daily hash growth is an assumption; the default reward decline uses the observed release rate without replenishments. Future rule changes, outside pool replenishments, referral bonuses, market depth and slippage are not predicted.
 
 The bounded search compares up to 18 actions with 60 candidates retained at each stage. It returns the best found plans and can recommend no new purchase. It is **not a proven global optimum**; it does not search arbitrary component swaps within a recipe. Incomplete/stale catalog, progression or care data blocks a recommendation. The catalog is refreshed with the hourly game reads. The main recommendation stays visible; alternatives and model details are expandable. The planner never initiates purchases or wallet actions.
+
+### Reinvestment only: no new deposits
+
+In **Budget → Mode → Reinvestment only**, choose a 1–30 day horizon. Balances are read automatically: claimable game rewards plus, optionally, the existing CRH wallet balance. The wallet may include tokens purchased earlier; unchecking it starts with unclaimed rewards only. Legacy test credits are never added. A fresh, wallet-scoped RPC balance and reconciled transaction history prevent double-counting claims. Existing ETH must fund estimated native gas; CRH is never assumed to pay ETH gas automatically.
+
+The simulator accumulates CRH, claims when payment needs it, then pays each development step at its scenario-time token price. New PCs change subsequent reward shares. Current paid builder jobs finish on their recorded timers, and new jobs can be queued while other development continues. Recipe assembly, component reuse, card limits, grid reservation, healthy-hash gates, hash-record prices and matching bonuses remain enforced.
+
+Choose **CRH balance** to favor the remaining liquid value at the end, or **Hashrate** to favor expansion. The plan gives the next step, modeled waiting/payment/completion times, full parts recipes, CRH balances after each payment and daily balance projections. Electricity is refilled in actual 12-hour lots; care uses average daily charges. The default 24-hour operating reserve can be adjusted from 12 to 72 hours. Native gas uses existing ETH, with a 25% buffer over recorded average fees. Care timing, wear and gas are estimates, not exact future bills.
+
+Today's confirmed server payout calibrates the simulation; the reward-budget scenario starts at the recorded game-day reset. Prices and other islands' hash follow your scenario. Game spending does not incur a modeled selling fee; a hypothetical ending cash-value comparison uses the selling-fee setting. The calculation conserves tokens, cannot spend future income before it is earned, and does not inject new money. It can recommend waiting or retaining rewards. If existing funds/energy cannot keep mining, the interruption is displayed.
+
+Search is bounded to 24 development actions, 20 retained candidates and 18,000 examined variants with roughly 30-minute waiting steps. It returns the best plans found, not a guaranteed global optimum. Alternative individual components, pool replenishments (including future purchases), new referrals, announced future rule changes and slippage are not forecast. Recalculate as actual data changes; a visible reinvestment tab with an existing calculation recomputes about every five minutes when new fresh data arrives. Account exports include the last forecast with its snapshot time and assumptions. No purchase, claim, approval or transfer is executed.
 
 ## PnL and payback
 

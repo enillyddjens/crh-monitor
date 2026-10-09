@@ -2,7 +2,7 @@
 (() => {"use strict";
  const C=globalThis.CRHMonitor||(typeof require==='function'?require('./shared.js'):null),P=globalThis.CRHProject||(typeof require==='function'?require('./project.js'):null);
  const clamp=(v,lo,hi,def)=>Number.isFinite(Number(v))?Math.max(lo,Math.min(hi,Number(v))):def;
- function options(raw={}){return{budget:clamp(raw.budget,0,1000000,100),days:clamp(raw.days,1,30,10),priceEndPct:clamp(raw.priceEndPct,-95,500,0),hashDailyPct:clamp(raw.hashDailyPct,-50,200,10),budgetDailyPct:clamp(raw.budgetDailyPct,-95,200,-10)};}
+ function options(raw={}){return{mode:raw.mode==='reinvest'?'reinvest':'budget',includeWallet:raw.includeWallet!==false,goal:raw.goal==='hash'?'hash':'balance',reserveHours:clamp(raw.reserveHours,12,72,24),budget:clamp(raw.budget,0,1000000,100),days:clamp(raw.days,1,30,10),priceEndPct:clamp(raw.priceEndPct,-95,500,0),hashDailyPct:clamp(raw.hashDailyPct,-50,200,10),budgetDailyPct:clamp(raw.budgetDailyPct,-95,200,-10)};}
  function islandHash(pcs,hall,tables){const on=pcs.filter(p=>p.on),strong=Math.max(0,...on.map(p=>p.healthy)),matched=on.filter(p=>p.healthy>=5&&p.healthy>=strong/4).length;const hallBonus=tables.hall.find(h=>h.level===hall)?.bonusPct??0,bonus=matched>=2?(matched-1)*6+(matched===8?6:0)+hallBonus:0;return on.reduce((n,p)=>n+p.hash,0)*(1+bonus/100);}
  function jobPrice(job,record){return job.baseUSD!==null&&job.perHashUSD!==null?Math.ceil((job.baseUSD+record*job.perHashUSD)*100-1e-8)/100:null;}
  function plan(data,rawOptions={},now=Date.now()){
@@ -12,7 +12,7 @@
    const cards=cat.cards.filter(c=>c.watts>0&&c.careDaily!==null&&c.recipe.length),missing=cat.cards.length-cards.length;
    if(!cards.length)return{error:'catalog-detail',options:o,plans:[]};
    const products=new Map(cards.flatMap(c=>c.recipe.map(p=>[p.id,p]))),items=s.items||[],configured=C.position(settings);
-   const pcs=(s.pcs||[]).filter(p=>p.ready).map(p=>{const parts=items.filter(i=>i.installedSetup===p.id&&products.has(i.catalog)).map(i=>({...products.get(i.catalog),quantity:1}));const factor=(1-(p.thermalLossPct??0)/100)*(1-(p.wearLossPct??0)/100);let care=P.careCost(parts,parts.reduce((n,i)=>n+i.usd,0));const counts=new Map();for(const x of parts)counts.set(x.id,(counts.get(x.id)||0)+x.quantity);const match=cards.find(c=>c.recipe.length&&c.recipe.every(x=>counts.get(x.id)===x.quantity)&&counts.size===c.recipe.length),healthy=p.healthyHash??(p.hash>0&&factor>0?p.hash/factor:match?.hash??0);return{id:p.id,name:p.id,healthy,hash:p.hash>0?p.hash:healthy*.925,watts:p.watts>0?p.watts:match?.watts??null,care:care??0,on:p.running,parts,knownCare:parts.length>0};});
+   const pcs=(s.pcs||[]).filter(p=>p.ready).map(p=>{const activeIds=new Set(Object.values(p.slots||{}).flat()),installed=items.filter(i=>i.installedSetup===p.id&&(!activeIds.size||activeIds.has(i.id)));const parts=installed.filter(i=>products.has(i.catalog)).map(i=>({...products.get(i.catalog),quantity:1}));const factor=(1-(p.thermalLossPct??0)/100)*(1-(p.wearLossPct??0)/100);let care=P.careCost(parts,parts.reduce((n,i)=>n+i.usd,0));const counts=new Map();for(const x of parts)counts.set(x.id,(counts.get(x.id)||0)+x.quantity);const match=cards.find(c=>c.recipe.length&&c.recipe.every(x=>counts.get(x.id)===x.quantity)&&counts.size===c.recipe.length),healthy=p.healthyHash??(p.hash>0&&factor>0?p.hash/factor:match?.hash??0);return{id:p.id,name:p.id,healthy,hash:p.hash>0?p.hash:healthy*.925,watts:p.watts>0?p.watts:match?.watts??null,care:care??0,on:p.running,parts,knownCare:parts.length>0&&installed.every(i=>products.has(i.catalog))};});
    if(pcs.some(p=>!(p.healthy>0)||!(p.watts>0)))return{error:'fresh-data',options:o,plans:[]};
    if(pcs.some(p=>!p.knownCare)&&configured.careDailyUSD===null)return{error:'care-unknown',options:o,plans:[]};
    if(configured.careDailyUSD!==null&&pcs.length)for(const p of pcs)p.care=configured.careDailyUSD/pcs.length;
@@ -23,7 +23,7 @@
    const claimRows=(ledger?.records||[]).filter(r=>r.type==='reward'&&r.gasUSD>0),gasDaily=configured.gasDailyUSD||(claimRows.length?claimRows.reduce((n,r)=>n+r.gasUSD,0)/claimRows.length:0);
    const baselineHash=islandHash(pcs,hall,tables),currentHash=s.myHash,others=Math.max(0,s.totalHash-currentHash),budget=C.units(s.budgetWei),price=m.price,tariff=s.electricityUSD;
    if(!(budget>0)||!(s.totalHash>0)||!(tariff>=0))return{error:'fresh-data',options:o,plans:[]};
-   const payout=Math.min(1,Math.max(0,m.dailyTokens/(budget*currentHash/s.totalHash)||1)),fee=1-configured.sellFeePct/100;
+   const payout=currentHash>0&&m.dailyTokens!==null?Math.min(1,Math.max(0,m.dailyTokens/(budget*currentHash/s.totalHash))):1,fee=1-configured.sellFeePct/100;
    const priceAt=t=>price*Math.pow(1+o.priceEndPct/100,t/o.days),rewardsAt=t=>budget*Math.pow(1+o.budgetDailyPct/100,t),externalAt=t=>others*Math.pow(1+o.hashDailyPct/100,t);
    const income=(hash,t)=>rewardsAt(t)*hash/Math.max(1e-9,externalAt(t)+hash)*priceAt(t)*payout*fee;
    const costPerDay=pp=>pp.filter(p=>p.on).reduce((n,p)=>n+p.watts*24/1000*tariff+p.care,0);
@@ -40,6 +40,7 @@
      return{score:delta-st.capital-actionGas,spend,reserve,energyAndCare:energyPaid,hash:islandHash(st.pcs,st.hall,tables),watts:st.pcs.reduce((n,p)=>n+p.watts,0),runningWatts:st.pcs.filter(p=>p.on).reduce((n,p)=>n+p.watts,0)};
    }
    const record=Math.max(s.hashRecord??0,pcs.reduce((n,p)=>n+p.healthy,0));
+   if(o.mode==='reinvest'){const R=globalThis.CRHReinvest||(typeof require==='function'?require('./reinvest-planner.js'):null);return R.plan({data,o,now,s,m,cards,tables,pcs,inventory,record,payout,baselineHash,islandHash,jobPrice,tariff,budget,others,configured,missing,cat,careCost:P.careCost});}
    const initial={pcs,hall,plots,power,t:Math.min(o.days,wait),capital:0,record,inventory,owned:Object.fromEntries((s.packageLimits||[]).map(l=>[l.id,l.owned??0])),actions:[],segments:[],energyCredit:0};
    let beam=[initial],best=[];const seen=new Set();
    function remember(st){const v=evaluate(st);if(v.spend>o.budget+1e-8)return null;const sig=JSON.stringify([st.pcs.map(p=>[p.name,p.on]).sort(),st.hall,st.plots,st.power,Math.round(st.t*1440),st.inventory]);if(seen.has(sig))return null;seen.add(sig);const out={...st,estimate:v};best.push(out);return out;}
