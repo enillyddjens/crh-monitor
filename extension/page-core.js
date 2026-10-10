@@ -21,7 +21,8 @@
     return {
       capitalUSD:number(p.capitalUSD),returnedUSD:number(p.returnedUSD) ?? 0,
       sellFeePct:Math.min(100,number(p.sellFeePct) ?? 3),
-      careDailyUSD:number(p.careDailyUSD),gasDailyUSD:number(p.gasDailyUSD) ?? 0
+      careDailyUSD:number(p.careDailyUSD),gasDailyUSD:number(p.gasDailyUSD) ?? 0,
+      claimTaxPct:number(p.claimTaxPct)===null?null:Math.min(100,number(p.claimTaxPct))
     };
   }
   function cleanSettings(raw={}) {
@@ -41,12 +42,33 @@
   function slots(raw={}) {
     const out={};for(const key of [...new Set(['case','board','motherboard','cpu','gpu','ram','ssd','psu','cooler','cpu_cooler','fans','fan','case_fans','system',...Object.keys(raw||{}).filter(k=>/^(ram|fan|fans|case_fan)[_-]?\d{1,2}$/.test(k))])]){const v=raw?.[key];if(itemId(v))out[key]=v;else if(Array.isArray(v))out[key]=v.map(itemId).filter(Boolean).slice(0,16);}return out;
   }
-  const pcs=v=>Array.isArray(v)?v.slice(0,8).filter(p=>itemId(p?.id)).map(p=>({id:p.id,plot:number(p.plot),ready:p.ready===true,running:p.running===true,powered:p.powered===true,hash:number(p.hash),healthyHash:number(p.healthyHash),watts:number(p.watts),cpuC:number(p.cpuC),gpuC:number(p.gpuC),thermalLossPct:number(p.thermalLossPct),wearLossPct:number(p.wearLossPct),autoPaste:{cpu:p.autoPaste?.cpu===true,gpu:p.autoPaste?.gpu===true},slots:slots(p.slots),towerSlots:slots(p.towerSlots)})):[];
+  const pcs=v=>Array.isArray(v)?v.slice(0,8).filter(p=>itemId(p?.id)).map(p=>({id:p.id,plot:number(p.plot),ready:p.ready===true,running:p.running===true,powered:p.powered===true,hash:number(p.hash),healthyHash:number(p.healthyHash),watts:number(p.watts),overclockWear:Math.max(1,Math.min(3,number(p.overclockWear)??1)),overclockEnd:number(p.overclockEnd),cpuC:number(p.cpuC),gpuC:number(p.gpuC),thermalLossPct:number(p.thermalLossPct),wearLossPct:number(p.wearLossPct),autoPaste:{cpu:p.autoPaste?.cpu===true,gpu:p.autoPaste?.gpu===true},slots:slots(p.slots),towerSlots:slots(p.towerSlots)})):[];
   const items=v=>Array.isArray(v)?v.slice(0,4000).filter(p=>itemId(p?.id)&&itemId(p?.catalog)).map(p=>({id:p.id,catalog:p.catalog,installedSetup:itemId(p.installedSetup??p.installed_setup),installedSlot:itemId(p.installedSlot??p.installed_slot),wearMs:number(p.wearMs??p.wear_ms),cpuPasteAgeMs:number(p.cpuPasteAgeMs??p.cpu_paste_age_ms),gpuPasteAgeMs:number(p.gpuPasteAgeMs??p.gpu_paste_age_ms),fanAgeMs:number(p.fanAgeMs??p.fan_age_ms),conditionPct:number(p.conditionPct??p.condition_percent),repairUSD:number(p.repairUSD)??(number(p.repair_usd_micro)===null?null:Number(p.repair_usd_micro)/1e6),serviceUSD:number(p.serviceUSD)??(number(p.service_usd_micro)===null?null:Number(p.service_usd_micro)/1e6)})):[];
   const powerLevels=v=>Array.isArray(v)?v.slice(0,14).map(p=>({level:number(p.level),capacityW:number(p.capacityW??p.capacity_w),minutes:number(p.minutes),state:short(p.state)})).filter(p=>p.level!==null&&p.capacityW!==null):[];
 
   const constructionLevels=v=>Array.isArray(v)?v.slice(0,14).map(p=>({level:number(p.level??p.plot),capacityW:number(p.capacityW??p.capacity_w),minutes:number(p.minutes),minHall:number(p.minHall??p.min_island_level),minPlots:number(p.minPlots??p.min_plots),bonusPct:number(p.bonusPct)??(number(p.total_bonus_bps)===null?null:Number(p.total_bonus_bps)/100),hashCap:number(p.hashCap)??(number(p.pc_hash_cap_micro)===null?null:Number(p.pc_hash_cap_micro)/1e6),usd:number(p.usd)??(number(p.usd_micro)===null?null:Number(p.usd_micro)/1e6),baseUSD:number(p.baseUSD)??(number(p.price_base_usd_micro)===null?null:Number(p.price_base_usd_micro)/1e6),perHashUSD:number(p.perHashUSD)??(number(p.price_usd_micro_per_hs)===null?null:Number(p.price_usd_micro_per_hs)/1e6),state:short(p.state)})).filter(p=>p.level!==null):[];
   const limits=v=>Array.isArray(v)?v.slice(0,40).map(p=>({id:itemId(p.id),owned:number(p.owned),max:number(p.max)})).filter(p=>p.id):[];
+  const percent=(bps,pct)=>number(bps)!==null&&number(bps)<=10000?number(bps)/100:number(pct)!==null&&number(pct)<=100?number(pct):null;
+  const timestamp=v=>{const n=number(v);if(n!==null)return n<1e12?n*1000:n;const t=typeof v==='string'&&!/^[+-]?\d+(?:\.\d+)?$/.test(v)?Date.parse(v):NaN;return Number.isFinite(t)&&t>=0?t:null};
+  function operating(raw={}){
+    if(!raw||typeof raw!=='object')raw={};
+    return {claimTaxPct:percent(raw.claimTaxBps,raw.claimTaxPct),claimTaxNextPct:percent(raw.claimTaxNextBps,raw.claimTaxNextPct),
+      claimTaxNextAt:number(raw.claimTaxNextAt),taxAgeHours:number(raw.taxAgeHours),netClaimableWei:wei(raw.netClaimableWei),
+      carePct:percent(raw.careBps,raw.carePct),careMinimumUSD:number(raw.careMinimumUSD),careNowUSD:number(raw.careNowUSD),
+      careNowWei:wei(raw.careNowWei),careDailyUSD:number(raw.careDailyUSD)};
+  }
+  function operatingFromState(raw){
+    const r=raw.rewards||{},tax=r.claim_tax||{},care=raw.care||raw.maintenance||{},rules=raw.rules?.care||raw.rules?.maintenance||{};
+    return operating({
+      claimTaxBps:r.claim_tax_bps??tax.rate_bps??tax.bps,claimTaxPct:r.claim_tax_percent??r.claim_tax_pct??tax.percent??tax.rate_percent,
+      claimTaxNextBps:tax.next_rate_bps,claimTaxNextPct:tax.next_percent,claimTaxNextAt:timestamp(tax.next_at??tax.next_change_at),
+      taxAgeHours:tax.age_hours??tax.played_hours,netClaimableWei:r.net_claimable_wei??r.claimable_net_wei??tax.net_claimable_wei,
+      careBps:care.daily_rate_bps??care.rate_bps??rules.daily_rate_bps,carePct:care.daily_rate_percent??care.rate_percent??rules.daily_rate_percent,
+      careMinimumUSD:number(care.min_usd_micro)!==null?number(care.min_usd_micro)/1e6:null,
+      careNowUSD:number(care.total_usd_micro)!==null?number(care.total_usd_micro)/1e6:null,careNowWei:care.total_wei??care.quote_wei,
+      careDailyUSD:number(care.daily_usd_micro)!==null?number(care.daily_usd_micro)/1e6:null
+    });
+  }
   function sanitizeState(raw) {
     if (!raw || typeof raw !== "object" || !wallet(raw.wallet)) return null;
     if (Number(raw.chain_id)!==4663 || wallet(raw.token)!==TOKEN.toLowerCase()) return null;
@@ -58,7 +80,7 @@
     return {
       wallet:wallet(raw.wallet),seenAt:Date.now(),serverNow:number(raw.server_now),
       settledAt:number(e.accrued_until??r.accrued_until),
-      version:short(raw.version),settlement:short(raw.settlement_status),
+      version:short(raw.version),settlement:short(raw.settlement_status),operating:operatingFromState(raw),
       priceUSD:price,priceQuotable:raw.price?.quotable===true,
       priceSource:short(raw.price?.source),
       totalHash:number(e.total_hash_micro)===null ? null : number(e.total_hash_micro)/1e6,
@@ -87,7 +109,7 @@
       economyRevision:short(raw.economy_revision??i.economy_revision),hashRecord:number(i.hash_record??raw.island?.hash_record_hs)??(number(raw.hash_record_micro)===null?null:Number(raw.hash_record_micro)/1e6),
       projectedHall:number(raw.progression?.projected?.island_level),projectedPlots:number(raw.progression?.projected?.plots),powerLevels:powerLevels(raw.progression?.power_levels),
       construction:{power:constructionLevels(raw.progression?.power_levels),plots:constructionLevels(raw.progression?.plots),hall:constructionLevels(raw.progression?.island_levels)},packageLimits:limits(Object.entries(raw.island?.package_limits||{}).map(([id,p])=>({id,...p}))),
-      pcs:pcs(Object.entries(raw.setups||{}).slice(0,8).map(([id,p])=>{const s=raw.stats?.setups?.[id]||{};return {id,plot:number(p.plot)===null?null:Number(p.plot)+1,ready:s.ready,running:s.running,powered:p.powered,hash:number(s.hashrate_micro)===null?number(s.hashrate):Number(s.hashrate_micro)/1e6,healthyHash:number(s.healthy_base_hashrate)??(number(s.parts_hashrate)>0&&number(s.efficiency_multiplier)>0?Number(s.parts_hashrate)*Number(s.efficiency_multiplier):null),watts:number(s.power_w),cpuC:s.thermal?.cpu_c??s.cpu_c,gpuC:s.thermal?.gpu_c??s.gpu_c,thermalLossPct:number(s.thermal_loss_percent)??(number(s.thermal?.loss_bps)===null?null:Number(s.thermal.loss_bps)/100),wearLossPct:s.maintenance_loss_percent,autoPaste:p.auto_paste,slots:p.slots,towerSlots:p.tower_slots};})),items:items(raw.items)
+      pcs:pcs(Object.entries(raw.setups||{}).slice(0,8).map(([id,p])=>{const s=raw.stats?.setups?.[id]||{};return {id,plot:number(p.plot)===null?null:Number(p.plot)+1,ready:s.ready,running:s.running,powered:p.powered,hash:number(s.hashrate_micro)===null?number(s.hashrate):Number(s.hashrate_micro)/1e6,healthyHash:number(s.healthy_base_hashrate)??(number(s.parts_hashrate)>0&&number(s.efficiency_multiplier)>0?Number(s.parts_hashrate)*Number(s.efficiency_multiplier):null),watts:number(s.power_w),overclockWear:s.overclock?.wear_multiplier??p.overclock?.wear_multiplier,overclockEnd:timestamp(s.overclock?.ends_at??p.overclock?.ends_at),cpuC:s.thermal?.cpu_c??s.cpu_c,gpuC:s.thermal?.gpu_c??s.gpu_c,thermalLossPct:number(s.thermal_loss_percent)??(number(s.thermal?.loss_bps)===null?null:Number(s.thermal.loss_bps)/100),wearLossPct:s.maintenance_loss_percent,autoPaste:p.auto_paste,slots:p.slots,towerSlots:p.tower_slots};})),items:items(raw.items)
     };
   }
   function validateSnapshot(s) {
@@ -100,6 +122,7 @@
     strings.forEach(k=>out[k]=short(s[k]));
     weis.forEach(k=>out[k]=wei(s[k]));
     ["priceQuotable","rateConfirmed","running","claimBlocked"].forEach(k=>out[k]=s[k]===true);
+    out.operating=operating(s.operating);
     out.rateChange=s.rateChange?{rateBps:number(s.rateChange.rateBps),startsAt:number(s.rateChange.startsAt)}:null;
     out.construction={power:constructionLevels(s.construction?.power),plots:constructionLevels(s.construction?.plots),hall:constructionLevels(s.construction?.hall)};out.packageLimits=limits(s.packageLimits);
     out.builderJobs=jobs(s.builderJobs);out.powerLevels=powerLevels(s.powerLevels);out.pcs=pcs(s.pcs);out.items=items(s.items);
@@ -118,7 +141,7 @@
       if(kind==="island_level")return "Island Level"+(n!==undefined?" · "+n:"");
       return "Стройка / апгрейд";
     }
-    return ({energy_refill:"Электричество",energy_buy:"Электричество",buy_paste:"Термопаста",repair:"Ремонт",service:"Обслуживание",buy:"Комплектующие",buy_cart:"Покупка в магазине"})[action]||"Покупка в игре";
+    return ({energy_refill:"Электричество",energy_buy:"Электричество",buy_paste:"Термопаста",repair:"Ремонт",service:"Обслуживание",care:"Уход за ПК",care_all:"Уход за всеми ПК",care_all_pcs:"Уход за всеми ПК",overclock:"Разгон ПК",buy:"Комплектующие",buy_cart:"Покупка в магазине"})[action]||"Покупка в игре";
   }
   function sanitizeOrder(raw){
     const id=typeof raw?.id==="string"&&/^0x[0-9a-f]{64}$/i.test(raw.id)?raw.id.toLowerCase():null,w=wallet(raw?.wallet);
@@ -130,7 +153,7 @@
     return {id,wallet:w,action,args,label:action?orderLabel(action,args):null,quotePriceUSD:number(raw.quotePriceUSD),seenAt:Date.now()};
   }
 
-  const purchaseActions=new Set(['build','buy_prebuilt','choose_starter','energy_refill','energy_buy','buy_paste','repair','service','buy','buy_cart']);
+  const purchaseActions=new Set(['build','buy_prebuilt','choose_starter','energy_refill','energy_buy','buy_paste','repair','service','care','care_all','care_all_pcs','overclock','buy','buy_cart']);
   function orderRequestMeta(raw,w) {
     if(!raw||typeof raw!=='object')return {};
     const safe=sanitizeOrder({id:'0x'+'0'.repeat(64),wallet:w,action:raw.action,args:raw.args??raw});

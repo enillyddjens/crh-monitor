@@ -43,7 +43,7 @@
     if(host)host.hidden=!settings.overlay;
     if(view)view.render(data);
     if(mini){
-      const m=C.compute(settings,data.games?.[settings.wallet],data.chain,data.market);
+      const m=(globalThis.CRHIncome||C).compute(settings,data.games?.[settings.wallet],data.chain,data.market);
       const pnl=CRHLedger.analyze(data.ledgers?.[settings.wallet],data.corrections?.[settings.wallet],data.orders?.[settings.wallet],data.chain?.wallet===settings.wallet?data.chain.balanceWei:null,CRHLedger.assetSnapshot(m,data.ledgers?.[settings.wallet]).claimable,m.price);
       mini.textContent="CRH "+I.usd(m.price,6,I.language(settings))+" · PnL "+(pnl.pnl===null?"—":(pnl.pnl>=0?"+":"−")+I.usd(Math.abs(pnl.pnl),undefined,I.language(settings)));
     }

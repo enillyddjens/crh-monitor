@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.7.0 — 2026-10-10
+
+- Focus the overview on daily net income and energy + Care cost instead of the legacy payback KPI; hide the unadapted Budget UI while retaining saved forecasts and source history.
+- Add separate payback and mark-to-market ROI for external cash and investment + reinvestment. Use actual sale proceeds net of gas for cash recovery; do not count wallet transfers as sales.
+- Budget the new earnings-based Care model, covering fans, paste and repairs once; support manual replacement, grouped-payment minimums and observed overclock wear.
+- Subtract claim tax before the selling-fee assumption. Preserve observed zero tax, known tax-age tiers and announced tax changes; mark a missing tax as a conservative documented 10% estimate.
+- Value unclaimed Rewards after current tax, without taxing actual vault payouts again. Keep settlement-time and wallet-reconciliation protections against duplicate claims.
+- Capture allowlisted operating metadata and export a reproducible income estimate. Separate a current Care-all quote from recurring daily cost; never treat missing rules as free maintenance.
+- Track changes in operating rates without treating growing Rewards or Care quotes as economy-rule changes.
+- Preserve game reads at 15 seconds, wallet/price updates at 30 seconds and hourly leaderboard snapshots. No financial or game actions are automated.
+
 ## 1.6.4 — 2026-10-09
 
 - Include the last confirmed unclaimed Rewards in CRH value and PnL instead of silently removing them after two minutes. Show wallet + Rewards separately and flag stale observations.

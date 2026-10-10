@@ -60,6 +60,27 @@
   " · синхронизация":" · syncing",
   "Только чтение · игра ≈ 15 с · баланс ≈ 30 с":"Read only · game ≈ 15s · wallet ≈ 30s"
  });
+ Object.assign(en,{
+  "Энергия и уход / день":"Energy and care / day","При непрерывной добыче":"With continuous mining","После энергии, Care и удержаний":"After energy, care and deductions",
+  "Доход и расходы за 24 часа":"24-hour income and costs","Налог на claim":"Claim tax","Уход и ремонт / день":"Care and repairs / day","Резерв на газ / день":"Daily gas budget","Care всех ПК сейчас":"Care all PCs now",
+  "Уход за ПК":"PC care","Уход за всеми ПК":"Care all PCs","Разгон ПК":"PC overclock",
+  "Для чистого дохода не хватает данных о стоимости ухода.":"Care cost data is missing for net income."," Rewards после налога":" Rewards after tax"," · налог claim оценён в 10%":" · claim tax estimated at 10%"," · оценка":" · estimate",
+  "Темп за 24 часа при текущих цене, хеше и бюджете. Энергия предполагает пополнение; будущие награды не гарантированы.":"A 24-hour run rate at the current price, hash and reward budget. Energy assumes refills; future rewards are not guaranteed.",
+  "Уход задан вручную и заменяет автоматический резерв.":"Manual care replaces the automatic budget.","Суточный уход получен от игры.":"Daily care cost comes from the game.",
+  "Уход оценён по заработку до реферального удержания: ":"Care is estimated from earnings before referral withholding: ",
+  "%. Все три вида ухода уже включены; повторно починка не вычитается. Минимум Care учтён для общего платежа раз в 6 часов. Между обслуживаниями H/s может снижаться.":"%. All three care types are included; repairs are not deducted again. The Care minimum assumes a combined payment every 6 hours. Hash can fall between care payments.",
+  "Ставка claim tax не получена от игры: заложены максимальные 10% из Docs. В настройках можно указать фактическую ставку, в том числе 0%.":"The game has not supplied claim tax: the maximum documented 10% is used. Settings can override it with the actual rate, including 0%.",
+  "Активный разгон ускоряет износ; после его окончания темп добычи изменится.":"An active overclock speeds up wear; mining income changes when it expires.",
+  "Следующая ставка выдачи пула: ":"Next pool release rate: ",". После смены дня доход пересчитается по новому бюджету.":". Income is recalculated from the new budget after rollover.",
+  "Комиссия продажи — заданное допущение; проскальзывание не включено. Газ вычитается в размере указанного резерва.":"Selling fees use your configured assumption; slippage is excluded. Gas uses the configured daily budget.",
+  "Авто: процент заработка":"Auto: share of earnings","Пусто — автоматический резерв по новым правилам Care. Введённая сумма заменяет его, а не добавляется сверху.":"Blank uses the new Care rules. A manual amount replaces that budget instead of being added to it.",
+  "Налог на claim, %":"Claim tax, %","Авто: игра или 10%":"Auto: game or 10%","Пусто — ставка из игры; если она недоступна, оценка по максимальным 10% из Docs. Для первого дня можно указать 0%.":"Blank uses the game rate, falling back to the documented maximum of 10%. First-day accounts can set 0%."
+ });
+ Object.assign(en,{
+  "Окупаемость и ROI":"Payback and ROI","Внешний инвест":"External investment","Вернулось продажами, за вычетом газа":"Sales returned, net of gas",
+  "Окуплено":"Recovered","Окуп: —":"Payback: —","Окуп: ≈ ":"Payback: ≈ "," дн.":" days",
+  "Внешний инвест — реальные деньги на покупки CRH из истории кошелька. Окуп — ещё не возвращённая продажами сумма / чистый доход в день. ROI = (стоимость CRH и Rewards после налога + продажи − газ − выбранная сумма инвеста) / выбранная сумма инвеста. Переводы между кошельками не считаются продажами. Срок рассчитан по текущему темпу; реинвест и изменения игры его изменят.":"External investment is real money spent buying CRH in the wallet history. Payback is the amount still to recover through sales divided by daily net income. ROI = (wallet CRH and net Rewards value + sales - gas - the selected investment amount) / the selected investment amount. Wallet transfers are not sales. The payback uses the current run rate; reinvestment and game changes will alter it."
+ });
  const reverse=Object.fromEntries(Object.entries(en).map(([ru,value])=>[value,ru]));
  function language(settings){if(settings?.language==='ru'||settings?.language==='en')return settings.language;return /^ru\b/i.test(globalThis.navigator?.language||'en')?'ru':'en'}
  const locale=lang=>lang==='ru'?'ru-RU':'en-US';

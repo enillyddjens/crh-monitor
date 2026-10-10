@@ -1,4 +1,4 @@
-# CRH Monitor 1.5.0
+# CRH Monitor 1.7.0
 
 An independent, read-only browser extension for **Computers RH**. Track your CRH position and follow the game's economy without keeping a spreadsheet.
 
@@ -8,9 +8,22 @@ An independent, read-only browser extension for **Computers RH**. Track your CRH
 
 ![CRH Monitor overview with clearly marked demo values](https://github.com/enillyddjens/crh-monitor/raw/main/docs/media/01-overview.png)
 
+
+## Operating income in v1.7.0
+
+The main screen now focuses on **Daily net income** and **Energy and care / day**. The Budget tab is hidden: the previous investment search is not adapted to the new rules and is not presented as a current recommendation. Saved forecasts remain in local storage and account exports; historical planner descriptions below refer to earlier versions.
+
+Net income uses your observed server reward rate, current CRH quote, claim tax, selling-fee assumption, electricity, Care and configured daily gas. Care automatically budgets fans, paste and repairs together, at the observed percentage or the documented default of 10% of mining earnings before referral withholding. A manual care amount replaces this automatic budget. The $0.05 Care minimum is counted once for a grouped payment; the daily minimum assumes Care all PCs every six hours. This is an operating-cost estimate, not a service quote or an automation. Current neglect losses stay in the server hashrate; active overclock wear is budgeted when its metadata is observed. Hash loss between services and expiry of boosts can reduce the future earnings rate.
+
+Exports from versions before v1.7.0 do not contain claim-tax or Care-rule metadata. New state reads keep allowlisted fields when supplied by the game. Missing claim tax uses an **explicitly estimated maximum of 10%**, never 0%; Settings can override the actual rate, including 0%. An observed net claim amount takes priority. Confirmed tax-age thresholds or announced tax changes can adjust the 24-hour estimate. Current unclaimed Rewards are valued after current claim tax, while actual on-chain payouts are already net and are not taxed again. Unknown Care costs leave net income unavailable instead of assuming free repairs.
+
+**Payback and ROI** shows two bases: external cash spent buying CRH and external cash plus reward-funded reinvestment. Payback subtracts actual sale proceeds net of recorded gas, then divides what remains by current daily net income. ROI compares wallet CRH, net Rewards and net sale proceeds against each base; it is a mark-to-market result, not recovered cash. Valued wallet transfers do not count as sales. Missing history or gas leaves the estimate unavailable.
+
+Open **24-hour income and costs** for each deduction and its assumptions. An available Care-all quote is shown separately from the recurring daily reserve. Continuous-day income assumes energy refills and the current reward budget; it is not a promise for the next game day. No claim, Care, refill, overclock or investment is executed.
+
 ## Install
 
-1. Download **crh-monitor-v1.5.0.zip** from GitHub Releases and extract it.
+1. Download **crh-monitor-v1.7.0.zip** from GitHub Releases and extract it.
 2. Open `chrome://extensions` or `edge://extensions` and enable **Developer mode**.
 3. Choose **Load unpacked** and select the extracted **crh-monitor** folder containing `manifest.json`.
 4. Pin the extension icon and reload your [Computers RH game tab](https://www.computersrh.xyz/play/island).
@@ -23,12 +36,12 @@ Click the icon for the popup, ⚙ for the full dashboard, or use the overlay at 
 ## What you see
 
 - **Project PnL:** purchases, sales, gas, rewards and the current value of remaining CRH.
-- **Your CRH value:** wallet balance plus fresh claimable rewards, at the game's quote.
-- **Daily net income:** current mining rate minus electricity and your configured costs.
-- **Game payback:** the cash still to recover divided by current daily net income.
+- **Your CRH value:** wallet balance plus confirmed unclaimed Rewards after claim tax, at the game's quote; estimates and stale snapshots are marked.
+- **Daily net income:** current reward rate minus claim tax, selling-fee assumption, electricity, automatic Care and configured gas.
+- **Legacy game payback (not a main-screen KPI in v1.7):** the cash still to recover divided by current daily net income.
 - **Transactions:** CRH buys, game payments, reward claims, execution prices and recorded order quotes.
 - **Initial investment / Investment + reinvestment:** separate external funding from rewards spent in the game.
-- **Analytics / Budget:** dilution, project activity and scenario comparisons.
+- **Analytics:** dilution, project activity and economic history.
 - **Analytics archive:** economy charts, hourly snapshots of both top-100 leaderboards, change events and player tooltips.
 
 Detailed pool, hash, power, energy and build-queue information stays in expandable sections. Choose your selling fee, PC-care reserve and gas budget in settings. The default **3% selling fee is an assumption**, not a detected market fee.
@@ -68,7 +81,7 @@ Game execution prices are automatic: confirmed USD order value divided by CRH pa
 
 The public [DEX Screener API](https://docs.dexscreener.com/api/reference) provides current quotes, not a historical-candle endpoint. Old claims are recovered only where recorded contemporaneous data exists. Account exports now include investment summaries, price observations and account-position history.
 
-## Analytics and budget planner
+## Analytics and archived budget planner
 
 **Analytics** adds personal-share history, ranked-island growth, new entries in the top 100 and detected hash-activity spikes. **Dilution at unchanged personal hash** isolates the effect of project growth from your own upgrades. A negative dilution means the project shrank and your hypothetical share increased. Ranked islands are not unique humans; entering the top 100 does not prove a new account. Spikes require adjacent observations no more than 30 minutes apart, so collection gaps do not create false bursts. Account-position observations are sampled every 10 minutes and retained up to 30 days for each wallet.
 
@@ -93,7 +106,7 @@ Separate mixed and expansion searches each keep up to 24 development actions and
 ## PnL and payback
 
 ```text
-Project PnL = wallet CRH value + fresh claimable reward value
+Project PnL = wallet CRH value + confirmed reward value after claim tax
             + CRH sale proceeds / valued withdrawals
             − CRH purchase cost − recorded transaction gas
 ```
@@ -103,12 +116,13 @@ PCs and upgrades already reduce the token balance; their USD amounts are not sub
 Rewards have zero acquisition cost. Sales and game payments use the average cost basis of CRH held at the time. For example, buying 100 CRH for $100 and spending 30 leaves 70 CRH: at $1 the result is −$30 before gas; at $2 the result is +$40. The game's $60 payment and its $30 token gain are details of that same result.
 
 ```text
-Daily net income = personal server reward rate × 24 × CRH price × (1 − selling fee)
-                 − electricity − configured PC care − configured gas
-Game payback     = unrecovered investment basis / daily net income
+Daily net income = personal server reward rate × 24 × CRH price
+                 × (1 − claim tax) × (1 − selling fee)
+                 − electricity − automatic or overridden Care − configured gas
+Legacy payback   = unrecovered investment basis / daily net income
 ```
 
-The personal server rate is used without deducting the referral share twice. A blank care field means care is excluded and is flagged. The automatic payback basis uses cumulative in-game USD spending; you can enter another basis and cash already recovered. Held CRH is not automatically treated as recovered cash. These settings do not replace transaction-based PnL.
+The personal server rate is used without deducting the referral share twice. A blank care field uses the new automatic Care reserve; a manual amount replaces it. The automatic payback basis uses cumulative in-game USD spending; you can enter another basis and cash already recovered. Held CRH is not automatically treated as recovered cash. These settings do not replace transaction-based PnL.
 
 Payback assumes the current rate continues. It is not a forecast or a promised return. Non-positive income has no current-rate payback. Price, pool, competition and costs can change. Market depth and slippage are not calculated.
 

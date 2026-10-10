@@ -95,7 +95,7 @@
   // No source claim is possible for fungible CRH: all outflows consume each funding pool proportionally.
   function spendKind(order){
     if(["build","buy_prebuilt","choose_starter"].includes(order?.action))return "capital";
-    if(["energy_refill","energy_buy","buy_paste","repair","service"].includes(order?.action))return "operating";
+    if(["energy_refill","energy_buy","buy_paste","repair","service","care","care_all","care_all_pcs","overclock"].includes(order?.action))return "operating";
     // Generic shop/cart actions may contain hardware, cosmetics or both. Require a manual category.
     return null;
   }
@@ -169,12 +169,13 @@
     const own=m.own,matching=ledger&&C.wallet(ledger.wallet)===own?.wallet?ledger:null;
     const observedAt=own?.settledAt??own?.serverNow??own?.seenAt;
     const settled=!!own&&(!own.settlement||own.settlement==='ready');
-    const claimable=settled?claimableAt(matching,m.claimable,observedAt):null;
+    const claimableGross=settled?claimableAt(matching,m.claimable,observedAt):null;
+    const claimable=claimableGross!==null?(m.income?m.income.netClaimable:claimableGross):null;
     // A newer wallet response may already include a payout that the ledger has not caught up with.
     const pendingBalance=matching?.complete&&C.wei(m.balanceWei)!==null&&
       (matching.records||[]).reduce((sum,r)=>sum+BigInt(r.quantityWei)*BigInt(r.direction),0n)!==BigInt(m.balanceWei);
     const totalTokens=!pendingBalance&&m.balance!==null&&claimable!==null?m.balance+claimable:null;
-    return {claimable,observedAt,staleRewards:claimable!==null&&!m.freshGame,pendingBalance:!!pendingBalance,
+    return {claimable,claimableGross,observedAt,staleRewards:claimable!==null&&!m.freshGame,pendingBalance:!!pendingBalance,
       totalTokens,valueUSD:totalTokens!==null&&m.price!==null?totalTokens*m.price:null};
   }
   function analyze(ledger,corrections={},orders={},balanceWei=null,claimable=null,price=null,observations=[]){

@@ -24,12 +24,12 @@
  function fill(){
    const settings=C.cleanSettings(data.settings),p=C.position(settings);
    $("wallet").value=settings.wallet??"";$("overlay").checked=settings.overlay;
-   for(const k of ["capitalUSD","returnedUSD","sellFeePct","careDailyUSD","gasDailyUSD"])$(k).value=p[k]??"";
+   for(const k of ["capitalUSD","returnedUSD","sellFeePct","careDailyUSD","gasDailyUSD","claimTaxPct"])$(k).value=p[k]??"";
  }
  $("settingsForm")?.addEventListener("submit",async e=>{
    e.preventDefault();
    const settings=C.cleanSettings(data.settings),selected=C.wallet($("wallet").value.trim());if(!selected)return;
-   const p={};for(const k of ["capitalUSD","returnedUSD","sellFeePct","careDailyUSD","gasDailyUSD"])p[k]=C.number($(k).value);
+   const p={};for(const k of ["capitalUSD","returnedUSD","sellFeePct","careDailyUSD","gasDailyUSD","claimTaxPct"])p[k]=C.number($(k).value);
    settings.wallet=selected;settings.overlay=$("overlay").checked;settings.positions[selected]=p;
    $("saveStatus").textContent=t("Сохраняю…");
    try{const r=await chrome.runtime.sendMessage({type:"saveSettings",settings});await load();fill();$("saveStatus").textContent=r.ok?t("Сохранено"):t("Сохранено; сеть сейчас недоступна")}catch{$("saveStatus").textContent=t("Не удалось сохранить")}
@@ -37,7 +37,7 @@
  $("wallet")?.addEventListener("change",e=>{
    const selected=C.wallet(e.target.value.trim());if(!selected)return;
    const p=C.position({...C.cleanSettings(data.settings),wallet:selected});
-   for(const k of ["capitalUSD","returnedUSD","sellFeePct","careDailyUSD","gasDailyUSD"])$(k).value=p[k]??"";
+   for(const k of ["capitalUSD","returnedUSD","sellFeePct","careDailyUSD","gasDailyUSD","claimTaxPct"])$(k).value=p[k]??"";
  });
  function edit(r){
    if(compact){chrome.storage.local.set({focusTx:{wallet:r.wallet,id:r.id}}).then(()=>chrome.runtime.openOptionsPage());return;}
@@ -81,11 +81,11 @@
    const rows=L.analyze(data.ledgers?.[w],data.corrections?.[w],data.orders?.[w],null,null,null,[...(data.history||[]),...(data.priceHistory||[])]).rows,r=rows.find(v=>v.id===focus.id);
    if(r){await chrome.storage.local.remove('focusTx');view.tab('journal');edit(r)}
  }
- function investmentSummary(settings,w){const ledger=data.ledgers?.[w],m=C.compute(settings,data.games?.[w],data.chain,data.market),claim=L.assetSnapshot(m,ledger).claimable,a=L.analyze(ledger,data.corrections?.[w],data.orders?.[w],data.chain?.wallet===w?data.chain.balanceWei:null,claim,m.price,[...(data.history||[]),...(data.priceHistory||[])]);return{initialInvestment:a.initialInvestment,totalInvestment:a.totalInvestment,projectPnL:a.pnl,resultBeforeReinvestment:a.pnlWithReinvest,reinvestment:a.reinvest,ready:a.ready};}
+ function investmentSummary(settings,w){const ledger=data.ledgers?.[w],m=CRHIncome.compute(settings,data.games?.[w],data.chain,data.market),claim=L.assetSnapshot(m,ledger).claimable,a=L.analyze(ledger,data.corrections?.[w],data.orders?.[w],data.chain?.wallet===w?data.chain.balanceWei:null,claim,m.price,[...(data.history||[]),...(data.priceHistory||[])]);return{initialInvestment:a.initialInvestment,totalInvestment:a.totalInvestment,projectPnL:a.pnl,resultBeforeReinvestment:a.pnlWithReinvest,reinvestment:a.reinvest,capitalReturns:CRHIncome.capitalReturns(m,a),ready:a.ready};}
  function CRHPriceObservations(){return (data.priceHistory||[]).filter(s=>s.source==='dexscreener'&&s.token===C.TOKEN.toLowerCase()).map(s=>({at:s.at,priceUSD:s.priceUSD,source:s.source,token:s.token,chainId:s.chainId,pair:s.pair}));}
  $("export")?.addEventListener('click',async()=>{
    await load();const settings=C.cleanSettings(data.settings),w=settings.wallet;if(!w)return;
-   const exported={format:'crh-monitor-v3',extensionVersion:chrome.runtime.getManifest().version,uiLanguage:lang,timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone,exportedAt:new Date().toISOString(),wallet:w,accounting:C.position(settings),game:data.games?.[w]??null,chain:data.chain?.wallet===w?data.chain:null,ledger:data.ledgers?.[w]??null,corrections:data.corrections?.[w]??{},orders:data.orders?.[w]??{},observations:(data.history||[]).filter(s=>s.wallet===w),investmentSummary:investmentSummary(settings,w),priceObservations:CRHPriceObservations(),positionObservations:data.accountDynamics?.[w]??[],plannerOptions:data.plannerPrefs?.[w]??null,plannerForecast:data.plannerForecasts?.[w]??null,project:CRHProject.clean(data.project)};
+   const exported={format:'crh-monitor-v3',extensionVersion:chrome.runtime.getManifest().version,uiLanguage:lang,timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone,exportedAt:new Date().toISOString(),wallet:w,accounting:C.position(settings),game:data.games?.[w]??null,chain:data.chain?.wallet===w?data.chain:null,ledger:data.ledgers?.[w]??null,corrections:data.corrections?.[w]??{},orders:data.orders?.[w]??{},observations:(data.history||[]).filter(s=>s.wallet===w),investmentSummary:investmentSummary(settings,w),incomeEstimate:CRHIncome.compute(settings,data.games?.[w],data.chain,data.market).income,priceObservations:CRHPriceObservations(),positionObservations:data.accountDynamics?.[w]??[],plannerOptions:data.plannerPrefs?.[w]??null,plannerForecast:data.plannerForecasts?.[w]??null,project:CRHProject.clean(data.project)};
    const url=URL.createObjectURL(new Blob([JSON.stringify(exported,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;const date=new Date(),pad=v=>String(v).padStart(2,'0');a.download='crh-monitor-'+date.getFullYear()+'-'+pad(date.getMonth()+1)+'-'+pad(date.getDate())+'-'+pad(date.getHours())+pad(date.getMinutes())+'-'+w.slice(2,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
  });
  chrome.storage.onChanged.addListener((changes,area)=>{if(area!=='local')return;for(const [k,v]of Object.entries(changes))data[k]=v.newValue;applyLanguage();view.render(data);if(changes.focusTx)focusEntry().catch(()=>{})});
