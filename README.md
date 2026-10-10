@@ -1,4 +1,6 @@
-# CRH Monitor 1.7.0
+# CRH Monitor 1.7.1
+
+Payback and ROI are always visible at the top of the overview, with separate external-cash and investment + reinvestment columns. Project PnL is available below in an expandable section.
 
 An independent, read-only browser extension for **Computers RH**. Track your CRH position and follow the game's economy without keeping a spreadsheet.
 
@@ -23,7 +25,7 @@ Open **24-hour income and costs** for each deduction and its assumptions. An ava
 
 ## Install
 
-1. Download **crh-monitor-v1.7.0.zip** from GitHub Releases and extract it.
+1. Download **crh-monitor-v1.7.1.zip** from GitHub Releases and extract it.
 2. Open `chrome://extensions` or `edge://extensions` and enable **Developer mode**.
 3. Choose **Load unpacked** and select the extracted **crh-monitor** folder containing `manifest.json`.
 4. Pin the extension icon and reload your [Computers RH game tab](https://www.computersrh.xyz/play/island).

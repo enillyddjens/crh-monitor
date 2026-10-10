@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.7.1 — 2026-10-10
+
+- Promote separate payback and ROI for external cash and investment + reinvestment to the top of the overview; both remain visible without opening a section.
+- Move Project PnL and its breakdown into an expandable section. Keep investment bases next to the corresponding returns and preserve calculation formulas.
+
 ## 1.7.0 — 2026-10-10
 
 - Focus the overview on daily net income and energy + Care cost instead of the legacy payback KPI; hide the unadapted Budget UI while retaining saved forecasts and source history.
