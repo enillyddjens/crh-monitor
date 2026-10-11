@@ -2,17 +2,18 @@
 (() => {"use strict";
  const C=globalThis.CRHMonitor||(typeof require==='function'?require('./shared.js'):null);
  const ECON_INTERVAL=600000,BOARD_INTERVAL=3600000,DAY=86400000;
+ const boardLimit=kind=>kind==='spend'?1500:100;
  const number=C.number,text=v=>typeof v==='string'?v.replace(/[\u0000-\u001f]/g,' ').trim().slice(0,64):'';
  const id=v=>typeof v==='string'&&/^isl_[0-9a-f]{20}$/.test(v)?v:null;
  const time=v=>{if(typeof v==='string'&&!/^\d+(\.\d+)?$/.test(v)){const d=Date.parse(v);return Number.isFinite(d)?d:null;}const n=number(v);return n===null?null:n<1e12?n*1000:n;};
  function board(raw,hint='hash'){
   if(!raw||!Array.isArray(raw.rows)||!['hash','spend'].includes(raw.board??hint))return null;
-  const rows=raw.rows.slice(0,100).map(r=>{if(!id(r?.island_id))return null;const current='owner' in r;return{id:r.island_id,owner:text(current?r.owner:r.name),name:text(current?r.name:r.island_name),rank:number(r.rank),hash:number(r.hashrate),spentTokens:number(r.spent_x),spentUSD:number(r.spent_usd_micro)===null?null:Number(r.spent_usd_micro)/1e6,hall:number(r.island_level),runningPCs:number(r.running_setups)};}).filter(Boolean);
-  return {board:raw.board??hint,complete:raw.complete===true,seenAt:Date.now(),asOf:time(raw.as_of),stale:raw.stale===true,page:Math.max(1,number(raw.page)??1),query:text(raw.query),total:number(raw.total),ranked:number(raw.ranked??raw.total),rows};
+  const rows=raw.rows.slice(0,boardLimit(raw.board??hint)).map(r=>{if(!id(r?.island_id))return null;const current='owner' in r;return{id:r.island_id,owner:text(current?r.owner:r.name),name:text(current?r.name:r.island_name),rank:number(r.rank),hash:number(r.hashrate),spentTokens:number(r.spent_x),spentUSD:number(r.spent_usd_micro)===null?null:Number(r.spent_usd_micro)/1e6,hall:number(r.island_level),runningPCs:number(r.running_setups)};}).filter(Boolean);
+  return {board:raw.board??hint,scan:raw.scan===true,complete:raw.complete===true,seenAt:Date.now(),asOf:time(raw.as_of),stale:raw.stale===true,page:Math.max(1,number(raw.page)??1),query:text(raw.query),total:number(raw.total),ranked:number(raw.ranked??raw.total),rows};
  }
  function validateBoard(raw){
   if(!raw||!['hash','spend'].includes(raw.board)||!Array.isArray(raw.rows)||!number(raw.seenAt))return null;
-  return{board:raw.board,complete:raw.complete===true,seenAt:number(raw.seenAt),asOf:number(raw.asOf),stale:raw.stale===true,page:Math.max(1,number(raw.page)??1),query:text(raw.query),total:number(raw.total),ranked:number(raw.ranked),rows:raw.rows.slice(0,100).filter(r=>id(r?.id)).map(r=>({id:r.id,owner:text(r.owner),name:text(r.name),rank:number(r.rank),hash:number(r.hash),spentTokens:number(r.spentTokens),spentUSD:number(r.spentUSD),hall:number(r.hall),runningPCs:number(r.runningPCs)}))};
+  return{board:raw.board,scan:raw.scan===true,complete:raw.complete===true,seenAt:number(raw.seenAt),asOf:number(raw.asOf),stale:raw.stale===true,page:Math.max(1,number(raw.page)??1),query:text(raw.query),total:number(raw.total),ranked:number(raw.ranked),rows:raw.rows.slice(0,boardLimit(raw.board)).filter(r=>id(r?.id)).map(r=>({id:r.id,owner:text(r.owner),name:text(r.name),rank:number(r.rank),hash:number(r.hash),spentTokens:number(r.spentTokens),spentUSD:number(r.spentUSD),hall:number(r.hall),runningPCs:number(r.runningPCs)}))};
  }
  function recipe(v){return Array.isArray(v)?v.slice(0,60).map(c=>{const p=c.product||c;return{id:text(p.id),name:text(p.name),kind:text(p.kind),usd:number(p.usd)??(number(p.price_usd_micro)===null?null:Number(p.price_usd_micro)/1e6),quantity:Math.max(1,Math.min(16,Math.floor(number(c.quantity)??1)))};}).filter(p=>p.id&&p.kind&&p.usd!==null):[];}
  function careCost(parts,pcValue){
@@ -23,22 +24,40 @@
    return paste+(fans?Math.max(.2* fans,.0001*pcValue)/2:parts.some(p=>p.kind==='system')?Math.max(.2,.0001*pcValue)/2:0)+repairs;
  }
  function card(raw){const parts=recipe(raw.recipe);return{id:text(raw.id),name:text(raw.name),hash:number(raw.hash),usd:number(raw.usd),watts:number(raw.watts),minHall:number(raw.minHall),limit:number(raw.limit),includedHours:number(raw.includedHours),recipe:parts,partsUSD:parts.length?parts.reduce((n,p)=>n+p.usd*p.quantity,0):null,careDaily:careCost(parts,number(raw.usd)??0)};}
- function catalog(raw){
-   if(!Array.isArray(raw?.packages))return null;
-   const cards=raw.packages.slice(0,40).map(p=>card({id:p.id,name:p.name,hash:p.healthy_base_hashrate??p.hashrate,usd:number(p.card_total_usd_micro??p.price_usd_micro)===null?null:Number(p.card_total_usd_micro??p.price_usd_micro)/1e6,watts:p.watts??p.stats?.power_w,minHall:p.min_island_level,limit:p.island_limit,includedHours:p.included_energy_hours,recipe:p.components})).filter(p=>p.hash>0&&p.usd>0);
-   return cards.length?{seenAt:Date.now(),cards}:null;
+ function product(raw){
+  if(!raw||raw.retired===true||raw.market===false||!['case','board','cpu','gpu','ram','ssd','psu','cooler','fan'].includes(raw.kind))return null;
+  const usd=number(raw.usd)??(number(raw.price_usd_micro)===null?null:Number(raw.price_usd_micro)/1e6);if(usd===null)return null;
+  const p={id:text(raw.id),name:text(raw.name),kind:raw.kind,usd};if(!p.id)return null;
+  for(const k of ['hash','watts','base_watts','max_ram_gb','max_module_gb','memory_speed','capacity_gb','speed','capacity','psu_capacity_watts','rating','cooler','flow','airflow_score','ventilation_target'])p[k]=number(raw[k]??(k==='hash'?raw.hashrate:null));
+  p.socket=text(raw.socket??raw.game_socket);p.memory=text(raw.memory);p.ram_slots=Array.isArray(raw.ram_slots)?raw.ram_slots.slice(0,8).map(text):[];
+  p.fan_mounts=Array.isArray(raw.fan_mounts)?raw.fan_mounts.slice(0,12).map(m=>({size_mm:number(m.size_mm)})):[];return p;
  }
- function validateCatalog(raw){if(!raw||!Array.isArray(raw.cards)||!number(raw.seenAt))return null;const cards=raw.cards.slice(0,40).map(card).filter(p=>p.hash>0&&p.usd>0);return cards.length?{seenAt:number(raw.seenAt),cards}:null;}
- const empty=()=>({version:1,economy:[],boards:{hash:[],spend:[]},latest:{},profiles:[],events:[],rules:{},catalog:null,errors:{}});
- function clean(raw){const p=empty();if(!raw||typeof raw!=='object')return p;p.economy=Array.isArray(raw.economy)?raw.economy.slice(-5000):[];for(const b of ['hash','spend']){p.boards[b]=Array.isArray(raw.boards?.[b])?raw.boards[b].slice(-336).map(s=>({...s,rows:(s.rows||[]).map(r=>Array.isArray(r)?[...r]:{...r})})):[];p.latest[b]=raw.latest?.[b]??null;}p.profiles=Array.isArray(raw.profiles)?raw.profiles.slice():[];p.events=Array.isArray(raw.events)?raw.events.slice(-150):[];p.rules=raw.rules&&typeof raw.rules==='object'?{...raw.rules}:{};p.catalog=raw.catalog??null;p.errors={...(raw.errors??{})};return p;}
+ function curve(raw){
+  if(!raw||!Array.isArray(raw.points))return null;const points=raw.points.slice(0,30).map(p=>({value:number(p.value),multiplier:number(p.multiplier)})).filter(p=>p.value>0&&p.multiplier>=1&&p.multiplier<=1.4).sort((a,b)=>a.value-b.value);
+  return points.length>=2?{k_hash:number(raw.k_hash)??7.959975,k_w:number(raw.k_w)??.594,multiplier_max:Math.min(1.4,number(raw.multiplier_max)??1.4),multiplier_decimals:4,points}:null;
+ }
+ function catalog(raw){
+   if(!raw||typeof raw!=='object')return null;const identity=raw.catalog_transport?.identity;
+   if(identity&&(identity.chain_id!==4663||String(identity.token).toLowerCase()!==C.TOKEN.toLowerCase()))return null;
+   const cards=Array.isArray(raw.packages)?raw.packages.slice(0,40).map(p=>card({id:p.id,name:p.name,hash:p.healthy_base_hashrate??p.hashrate,usd:number(p.card_total_usd_micro??p.price_usd_micro)===null?null:Number(p.card_total_usd_micro??p.price_usd_micro)/1e6,watts:p.watts??p.stats?.power_w,minHall:p.min_island_level,limit:p.island_limit,includedHours:p.included_energy_hours,recipe:p.components})).filter(p=>p.hash>0&&p.usd>0):[];
+   const parts=Array.isArray(raw.products)?raw.products.slice(0,500).map(product).filter(Boolean):[];
+   return cards.length||parts.length?{seenAt:Date.now(),cards,parts,curve:curve(raw.island?.efficiency_curve),source:parts.length?'live-catalog':'live-prebuilts'}:null;
+ }
+ function validateCatalog(raw){if(!raw||!number(raw.seenAt))return null;const cards=(Array.isArray(raw.cards)?raw.cards:[]).slice(0,40).map(card).filter(p=>p.hash>0&&p.usd>0),parts=(Array.isArray(raw.parts)?raw.parts:[]).slice(0,500).map(product).filter(Boolean);return cards.length||parts.length?{seenAt:number(raw.seenAt),cards,parts,curve:curve(raw.curve),source:parts.length?'live-catalog':'live-prebuilts'}:null;}
+ function mergeCatalog(old,next){return {...old,...next,cards:next.cards.length?next.cards:old?.cards||[],parts:next.parts.length?next.parts:old?.parts||[],curve:next.curve??old?.curve??null,partsSeenAt:next.parts.length?next.seenAt:old?.partsSeenAt??null};}
+ const empty=()=>({version:1,economy:[],boards:{hash:[],spend:[]},latest:{},attempts:{},wlBoundary:[],profiles:[],events:[],rules:{},catalog:null,errors:{}});
+ function clean(raw){const p=empty();if(!raw||typeof raw!=='object')return p;p.economy=Array.isArray(raw.economy)?raw.economy.slice(-5000):[];for(const b of ['hash','spend']){p.boards[b]=Array.isArray(raw.boards?.[b])?raw.boards[b].slice(-336).map(s=>({...s,rows:(s.rows||[]).map(r=>Array.isArray(r)?[...r]:{...r})})):[];p.latest[b]=raw.latest?.[b]??null;}p.attempts=raw.attempts&&typeof raw.attempts==='object'?{...raw.attempts}:{};p.wlBoundary=Array.isArray(raw.wlBoundary)?raw.wlBoundary.slice(-750).map(x=>({at:number(x.at),spentTokens:number(x.spentTokens),complete:x.complete===true,rows:number(x.rows),ranked:number(x.ranked),stale:x.stale===true})).filter(x=>x.at!==null):[];p.profiles=Array.isArray(raw.profiles)?raw.profiles.slice():[];p.events=Array.isArray(raw.events)?raw.events.slice(-150):[];p.rules=raw.rules&&typeof raw.rules==='object'?{...raw.rules}:{};p.catalog=raw.catalog??null;p.errors={...(raw.errors??{})};return p;}
  function compactProfiles(p){const used=new Set();for(const b of ['hash','spend'])for(const s of p.boards[b])for(const r of s.rows)if(Array.isArray(r))used.add(r[0]);const map=new Map(),profiles=[];for(const n of [...used].sort((a,b)=>a-b)){if(p.profiles[n]){map.set(n,profiles.length);profiles.push(p.profiles[n]);}}for(const b of ['hash','spend'])for(const s of p.boards[b])s.rows=s.rows.filter(r=>!Array.isArray(r)||map.has(r[0])).map(r=>Array.isArray(r)?[map.get(r[0]),...r.slice(1)]:r);p.profiles=profiles;}
- function prune(p,now){p.economy=p.economy.filter(e=>e.at>=now-30*DAY).slice(-5000);for(const b of ['hash','spend'])p.boards[b]=p.boards[b].filter(e=>e.seenAt>=now-14*DAY).slice(-336);p.events=p.events.filter(e=>e.at>=now-30*DAY).slice(-150);p.rules=Object.fromEntries(Object.entries(p.rules).slice(-32));compactProfiles(p);while(JSON.stringify({boards:p.boards,profiles:p.profiles}).length>3500000){const b=(p.boards.hash[0]?.seenAt??Infinity)<=(p.boards.spend[0]?.seenAt??Infinity)?'hash':'spend';if(!p.boards[b].length)break;p.boards[b].shift();compactProfiles(p);}return p;}
+ function prune(p,now){p.wlBoundary=p.wlBoundary.filter(e=>e.at>=now-30*DAY).slice(-750);p.economy=p.economy.filter(e=>e.at>=now-30*DAY).slice(-5000);for(const b of ['hash','spend'])p.boards[b]=p.boards[b].filter(e=>e.seenAt>=now-14*DAY).slice(-336);p.events=p.events.filter(e=>e.at>=now-30*DAY).slice(-150);p.rules=Object.fromEntries(Object.entries(p.rules).slice(-32));compactProfiles(p);while(JSON.stringify({boards:p.boards,profiles:p.profiles}).length>10000000){const b=(p.boards.hash[0]?.seenAt??Infinity)<=(p.boards.spend[0]?.seenAt??Infinity)?'hash':'spend';if(!p.boards[b].length)break;p.boards[b].shift();compactProfiles(p);}return p;}
  function saveBoard(rawProject,input,priceUSD=null){const p=clean(rawProject),b=validateBoard(input);if(!b)return p;
-  // Searches and partial pages are never presented as a complete top-100 snapshot.
+  // Searches are excluded. Partial scans stay explicit and never overwrite the last complete board.
   if(b.page!==1||b.query)return p;
   if(p.latest[b.board]?.seenAt>b.seenAt)return p;
-  if(!b.complete&&p.latest[b.board]?.complete)return p;
-  const current={...b,rows:b.rows.slice(0,100),priceUSD:number(priceUSD)};p.latest[b.board]=current;delete p.errors[b.board];
+  if(!b.complete&&!b.scan){if(p.latest[b.board]?.complete)return p;p.latest[b.board]={...b,priceUSD:number(priceUSD)};return p;}
+  p.attempts[b.board]={at:b.seenAt,complete:b.complete&&!b.stale,rows:b.rows.length,target:Math.min(boardLimit(b.board),b.ranked??boardLimit(b.board)),stale:b.stale};
+  if(b.board==='spend'){const row=b.rows.find(r=>r.rank===1111),point={at:b.seenAt,spentTokens:row?.spentTokens??null,complete:b.complete&&!b.stale&&!!row,rows:b.rows.length,ranked:b.ranked,stale:b.stale};const last=p.wlBoundary.at(-1);if(last&&Math.floor(last.at/BOARD_INTERVAL)===Math.floor(point.at/BOARD_INTERVAL)&&(!last.complete||point.complete))p.wlBoundary[p.wlBoundary.length-1]=point;else p.wlBoundary.push(point);}
+  if(!b.complete||b.stale){p.errors[b.board]={at:b.seenAt,status:0,partial:true,rows:b.rows.length};if(p.latest[b.board]?.complete)return prune(p,b.seenAt);}
+  const current={...b,rows:b.rows.slice(0,boardLimit(b.board)),priceUSD:number(priceUSD)};p.latest[b.board]=current;if(b.complete&&!b.stale)delete p.errors[b.board];
   if(!b.stale&&b.complete){const packed=packBoard(p,current),history=p.boards[b.board],last=history.at(-1),bucket=Math.floor(b.seenAt/BOARD_INTERVAL);if(last&&Math.floor(last.seenAt/BOARD_INTERVAL)===bucket)history[history.length-1]=packed;else history.push(packed);}
   return prune(p,b.seenAt);
  }
@@ -62,5 +81,5 @@
  function playerValue(row,price,cards=[]){const ratios=cards.filter(c=>c.hash>0&&c.usd>0).map(c=>c.usd/c.hash);return{spentUSD:number(row?.spentUSD),spentTokens:number(row?.spentTokens),tokenValueUSD:number(row?.spentTokens)!==null&&number(price)!==null?row.spentTokens*price:null,hardwareLow:row?.hash>0&&ratios.length?row.hash*Math.min(...ratios)/1.84:null,hardwareHigh:row?.hash>0&&ratios.length?row.hash*Math.max(...ratios)*2:null,ratioLow:ratios.length?Math.min(...ratios):null,ratioHigh:ratios.length?Math.max(...ratios):null};}
  const exportData=p=>({format:'crh-monitor-project-v1',exportedAt:new Date().toISOString(),project:clean(p)});
  function download(p){const url=URL.createObjectURL(new Blob([JSON.stringify(exportData(p),null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download='crh-project-'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
- const api={ECON_INTERVAL,BOARD_INTERVAL,board,validateBoard,catalog,validateCatalog,careCost,empty,clean,saveBoard,saveEconomy,delta,playerValue,unpackBoard,exportData,download};globalThis.CRHProject=api;if(typeof module!=='undefined')module.exports=api;
+ const api={ECON_INTERVAL,BOARD_INTERVAL,boardLimit,board,validateBoard,catalog,validateCatalog,mergeCatalog,product,curve,careCost,empty,clean,saveBoard,saveEconomy,delta,playerValue,unpackBoard,exportData,download};globalThis.CRHProject=api;if(typeof module!=='undefined')module.exports=api;
 })();

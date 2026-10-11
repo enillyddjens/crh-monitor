@@ -87,7 +87,7 @@ async function acceptProject(m,sender){
  if(!sender.tab||!sender.url?.startsWith("https://www.computersrh.xyz/"))return {ok:false};
  const x=await chrome.storage.local.get(["project","market"]);let project=P.clean(x.project);
  if(m.kind==="board"){const b=P.validateBoard(m.payload);if(!b||Math.abs(Date.now()-b.seenAt)>10000)return {ok:false};project=P.saveBoard(project,b,x.market&&Date.now()-x.market.seenAt<120000?x.market.priceUSD:null);}
- else if(m.kind==="catalog"){const c=P.validateCatalog(m.payload);if(!c||Math.abs(Date.now()-c.seenAt)>10000)return {ok:false};project.catalog=c;}
+ else if(m.kind==="catalog"){const c=P.validateCatalog(m.payload);if(!c||Math.abs(Date.now()-c.seenAt)>10000)return {ok:false};project.catalog=P.mergeCatalog(project.catalog,c);delete project.errors.catalog;}
  else if(m.kind==="error"&&["hash","spend","catalog"].includes(m.board)){project.errors={...project.errors,[m.board]:{at:Date.now(),status:Math.trunc(C.number(m.status)??0)}};}
  else return {ok:false};await chrome.storage.local.set({project});return {ok:true};
 }

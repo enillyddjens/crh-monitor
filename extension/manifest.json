@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "CRH Monitor",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "__MSG_extensionDescription__",
   "permissions": [
     "storage",
@@ -55,6 +55,9 @@
         "planner.js",
         "planner-view.js",
         "project-view.js",
+        "starter-catalog.js",
+        "development.js",
+        "development-view.js",
         "view.js",
         "content.js",
         "leader-hover.js"

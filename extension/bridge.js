@@ -29,7 +29,7 @@
      const text=await response.clone().text();if(text.length>2000000)return;
      const data=JSON.parse(text);emit(data);
      if(P&&path.startsWith("/api/web3/social/leaderboard")){const b=P.board(data,path.includes("board=spend")?"spend":"hash");if(b){lastBoard[b.board]=b;sendProject("board",b);}}
-     if(P&&path.startsWith("/api/web3/prebuilts")){const c=P.catalog(data);if(c){lastCatalog=c;sendProject("catalog",c);}}
+     if(P&&(path.startsWith("/api/web3/prebuilts")||path.split("?")[0]==="/api/web3/catalog")){const c=P.catalog(data);if(c){lastCatalog=P.mergeCatalog(lastCatalog,c);sendProject("catalog",lastCatalog);}}
      if(path==="/api/web3/state")refreshBoards(false);
      if(path.startsWith("/api/web3/orders/"))order(data,await metaPromise);
    }catch{}
@@ -57,7 +57,7 @@
    }
    const meta=orders?requestMeta(input,init):Promise.resolve({});
    const promise=original.apply(this,arguments);
-   if(state||orders||same&&url.pathname==="/api/web3/command"||same&&["/api/web3/social/leaderboard","/api/web3/prebuilts"].includes(url.pathname))promise.then(r=>observe(r,url.pathname+url.search,meta)).catch(()=>{});
+   if(state||orders||same&&url.pathname==="/api/web3/command"||same&&["/api/web3/social/leaderboard","/api/web3/prebuilts","/api/web3/catalog"].includes(url.pathname))promise.then(r=>observe(r,url.pathname+url.search,meta)).catch(()=>{});
    return promise;
  };
  async function refresh(force=false){
@@ -70,17 +70,18 @@
    }catch{}finally{inflight=false}
  }
  async function refreshBoards(force=false){
-   if(!P||!headers||boardsBusy||Date.now()-lastBoards<(force?60000:3600000))return;
+   if(!P||!headers||boardsBusy||Date.now()-lastBoards<3600000)return;
    boardsBusy=true;lastBoards=Date.now();const currentHeaders={...headers};
    const get=async path=>{const r=await original.call(window,path,{method:"GET",headers:currentHeaders,credentials:"same-origin",cache:"no-store",signal:AbortSignal.timeout(12000)});if(!r.ok){const e=Error();e.status=r.status;throw e;}const t=await r.text();if(t.length>2000000)throw Error();return JSON.parse(t);};
    try{
-    for(const kind of ["hash","spend"]){try{
-     const base="/api/web3/social/leaderboard?page_size=20"+(kind==="spend"?"&board=spend":""),first=await get(base+"&page=1"),all=[...(first.rows||[])],target=Math.min(100,Math.max(0,Number(first.ranked??first.total)||0)),pages=Math.min(5,Math.max(1,Number(first.pages)||Math.ceil(target/20)));
-     for(let page=2;page<=pages;page++){const next=await get(base+"&page="+page);if(next.stale||first.snapshot_id&&next.snapshot_id!==first.snapshot_id||first.as_of!=null&&next.as_of!==first.as_of)throw Error();all.push(...(next.rows||[]));}
-     const clean=P.board({...first,board:kind,page:1,query:"",rows:all,complete:true},kind);if(!clean||new Set(clean.rows.map(r=>r.id)).size!==clean.rows.length||clean.rows.length<target)throw Error();
+    for(const kind of ["hash","spend"]){let first=null,all=[];try{
+     const base="/api/web3/social/leaderboard?page_size=20"+(kind==="spend"?"&board=spend":"");first=await get(base+"&page=1");all=[...(first.rows||[])];const target=Math.min(kind==="spend"?1500:100,Math.max(0,Number(first.ranked??first.total)||0)),pages=Math.min(kind==="spend"?75:5,Math.max(1,Math.ceil(target/20)));
+     for(let page=2;page<=pages;page++){if(typeof setTimeout==='function')await new Promise(r=>setTimeout(r,250));const next=await get(base+"&page="+page);if(next.stale||first.snapshot_id&&next.snapshot_id!==first.snapshot_id||first.as_of!=null&&next.as_of!==first.as_of)throw Error();all.push(...(next.rows||[]));}
+     const clean=P.board({...first,board:kind,page:1,query:"",rows:all,scan:true,complete:true},kind);if(!clean||new Set(clean.rows.map(r=>r.id)).size!==clean.rows.length||clean.rows.length<target)throw Error();
      lastBoard[kind]=clean;sendProject("board",clean);
-    }catch(e){sendProject("error",null,{board:kind,status:e.status??0});}}
-    try{const c=P.catalog(await get("/api/web3/prebuilts"));if(c){lastCatalog=c;sendProject("catalog",c);}}catch(e){sendProject("error",null,{board:"catalog",status:e.status??0});}
+    }catch(e){if(first){const partial=P.board({...first,board:kind,page:1,query:"",rows:all,scan:true,complete:false},kind);if(partial)sendProject("board",partial);}sendProject("error",null,{board:kind,status:e.status??0});}}
+    try{const c=P.catalog(await get("/api/web3/catalog"));if(c){lastCatalog=P.mergeCatalog(lastCatalog,c);sendProject("catalog",lastCatalog);}}catch(e){sendProject("error",null,{board:"catalog",status:e.status??0});}
+    try{const c=P.catalog(await get("/api/web3/prebuilts"));if(c){lastCatalog=P.mergeCatalog(lastCatalog,c);sendProject("catalog",lastCatalog);}}catch(e){sendProject("error",null,{board:"catalog",status:e.status??0});}
    }finally{boardsBusy=false}
  }
  async function enrich(wallet,ids){

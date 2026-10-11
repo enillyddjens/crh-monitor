@@ -25,6 +25,7 @@
  'CRH Monitor обновлён · перезагрузить игру':'CRH Monitor updated · reload game','После обновления расширения вкладку игры нужно перезагрузить':'Reload the game tab after updating the extension',
  'RPC не вернул корректный ответ':'RPC returned an invalid response','RPC вернул другую сеть':'RPC returned the wrong chain','Нет исторического курса':'Historical price unavailable','RPC не вернул журнал CRH':'RPC returned invalid CRH logs','Транзакция ещё не доступна':'Transaction is not available yet'
  };
+ Object.assign(en,{"Care 5% — оценка по объявленному снижению цены на 50%; Docs ещё указывают 10%. Серверная ставка имеет приоритет. Проверьте текущий quote в игре.":"Care at 5% estimates the announced 50% price reduction; Docs still say 10%. A server-reported rate takes priority. Check the current quote in game.","Подтверждённые награды Social Pot включены в Rewards без налога. Будущие выигрыши не входят в доход за сутки.":"Confirmed Social Pot rewards are included in Rewards without tax. Future wins are excluded from daily income."});
  Object.assign(en,{
   "Изначальный инвест": "Initial investment",
   "Инвест + реинвест": "Investment + reinvestment",

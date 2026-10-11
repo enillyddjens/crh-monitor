@@ -12,8 +12,8 @@
   const o=m.own?.operating||{},manual=m.p.claimTaxPct,history=recordedClaims(m,ledger,now);
   const count=(Number.isInteger(C.number(o.claims24h))?C.number(o.claims24h):null)??history?.count??null,lastAt=C.number(o.lastClaimAt)??history?.lastAt??null;
   if(validPct(manual)!==null)return {pct:manual,source:'manual',estimated:false,count,lastAt};
-  let pct=validPct(o.claimTaxPct),source='game';const net=C.units(o.netClaimableWei);
-  if(pct===null&&m.claimable>0&&net!==null&&net<=m.claimable){pct=(1-net/m.claimable)*100;source='game-net-claim';}
+  let pct=validPct(o.claimTaxPct),source='game';const net=C.units(o.netClaimableWei),social=Math.min(m.claimable??0,C.units(o.socialClaimableWei)??0),taxable=Math.max(0,(m.claimable??0)-social);
+  if(pct===null&&taxable>0&&net!==null&&net<=m.claimable&&net>=social){pct=(1-(net-social)/taxable)*100;source='game-net-claim';}
   if(pct===null&&count!==null){pct=taxTier(count);source=history&&C.number(o.claims24h)===null?'ledger-rolling-24h':'game-rolling-24h';}
   if(pct===null&&lastAt!==null&&now-lastAt>=DAY){pct=5;source='game-last-claim';}
   if(pct!==null)return {pct,source,estimated:false,count,lastAt};
@@ -25,28 +25,28 @@
   const cadence=m.p.claimEveryHours,dayTax=claimTax.source==='manual'?claimTax.pct:taxTier(Math.max(0,Math.ceil(24/cadence)-1));
   const gross=m.grossDaily,energy=own?(running?m.energyDaily:0):null;
   const beforeReferral=own&&m.budget!==null&&m.quote?.totalHash>0&&own.myHash!==null&&m.price!==null?m.budget*own.myHash/m.quote.totalHash*m.price:null;
-  const carePct=validPct(o.carePct)??10,careMinimum=C.number(o.careMinimumUSD)??.05;
+  const carePct=validPct(o.carePct)??5,careMinimum=C.number(o.careMinimumUSD)??.05;
   const pcs=(own?.pcs||[]).filter(p=>p.running&&p.ready&&p.hash>0),sumHash=pcs.reduce((s,p)=>s+p.hash,0);
   const wear=sumHash>0?pcs.reduce((s,p)=>{const hours=p.overclockEnd?Math.max(0,Math.min(24,(p.overclockEnd-now)/3600000)):24;return s+p.hash*(1+((C.number(p.overclockWear)??1)-1)*hours/24)},0)/sumHash:1;
   let care=null,careSource='docs-estimate';
   if(own&&!running){care=0;careSource='stopped';}
   else if(m.p.careDailyUSD!==null){care=m.p.careDailyUSD;careSource='manual';}
   else if(C.number(o.careDailyUSD)!==null){care=o.careDailyUSD;careSource='game-daily';}
-  else if(beforeReferral!==null){care=Math.max(beforeReferral*carePct/100*(2+wear)/3,careMinimum*4);careSource=validPct(o.carePct)!==null?'game-rate-estimate':'docs-estimate';}
+  else if(beforeReferral!==null){care=Math.max(beforeReferral*carePct/100*(2+wear)/3,careMinimum*4);careSource=validPct(o.carePct)!==null?'game-rate-estimate':'announcement-50pct-discount-estimate';}
   const taxCost=gross!==null?gross*dayTax/100:null,received=gross!==null?gross-taxCost:null;
   const sellCost=received!==null?received*m.p.sellFeePct/100:null,gas=m.p.gasDailyUSD;
   const operating=energy!==null&&care!==null?energy+care:null;
   const net=received!==null&&operating!==null?received-sellCost-operating-gas:null;
-  const currentNetClaim=C.units(o.netClaimableWei);
-  const netClaimable=m.claimable!==null?(claimTax.source!=='manual'&&currentNetClaim!==null&&currentNetClaim<=m.claimable?currentNetClaim:m.claimable*(1-claimTax.pct/100)):null;
+  const currentNetClaim=C.units(o.netClaimableWei),socialClaimable=Math.min(m.claimable??0,C.units(o.socialClaimableWei)??0);
+  const netClaimable=m.claimable!==null?(claimTax.source!=='manual'&&currentNetClaim!==null&&currentNetClaim<=m.claimable?currentNetClaim:(m.claimable-socialClaimable)*(1-claimTax.pct/100)+socialClaimable):null;
   const careNow=C.number(o.careNowUSD)??(C.units(o.careNowWei)!==null&&m.price!==null?C.units(o.careNowWei)*m.price:null);
-  return {model:'rolling-claims-care-20261011',asOf:own?.seenAt??null,priceUSD:m.price,priceAt:m.quote?.seenAt??null,personalHash:own?.myHash??null,totalHash:m.quote?.totalHash??null,budgetCRH:m.budget,dayEnd:own?.dayEnd??null,dailyCRH:m.dailyTokens,grossDailyUSD:gross,energyDailyUSD:energy,careDailyUSD:care,carePct,careSource,
+  return {model:'workshop-care-discount-20261011',asOf:own?.seenAt??null,priceUSD:m.price,priceAt:m.quote?.seenAt??null,personalHash:own?.myHash??null,totalHash:m.quote?.totalHash??null,budgetCRH:m.budget,dayEnd:own?.dayEnd??null,dailyCRH:m.dailyTokens,grossDailyUSD:gross,energyDailyUSD:energy,careDailyUSD:care,carePct,careSource,
     careEstimated:!['manual','game-daily','stopped'].includes(careSource),careCadenceHours:6,careMinimumUSD:careMinimum,careNowUSD:careNow,
     claimTaxPct:claimTax.pct,claimTaxDayPct:dayTax,claimTaxSource:claimTax.source,claimTaxEstimated:claimTax.estimated,claimTaxDailyUSD:taxCost,
     claimEveryHours:cadence,claimTaxDaySource:claimTax.source==='manual'?'manual':'cadence-assumption',claimTaxDayEstimated:claimTax.source!=='manual',claims24h:claimTax.count,lastClaimAt:claimTax.lastAt,
     nextClaimAt:C.number(o.nextClaimAt)??(claimTax.lastAt!==null?claimTax.lastAt+2*3600000:null),lowTaxAt:claimTax.lastAt!==null?claimTax.lastAt+DAY:null,
     receivedDailyUSD:received,sellDailyUSD:sellCost,gasDailyUSD:gas,operatingDailyUSD:operating,netDailyUSD:net,netClaimable,
-    beforeReferralDailyUSD:beforeReferral,wearFactor:wear,hasOverclock:pcs.some(p=>p.overclockEnd>now),running,
+    beforeReferralDailyUSD:beforeReferral,wearFactor:wear,socialClaimableTokens:socialClaimable,socialClaimableConfirmed:C.units(o.socialClaimableWei)!==null,hasOverclock:pcs.some(p=>p.overclockEnd>now),running,
     poolChangeAt:own?.rateChange?.startsAt??null,poolNextRatePct:own?.rateChange?.rateBps!=null?own.rateChange.rateBps/100:null};
  }
  function compute(settings,game,chain,market,now=Date.now(),ledger=null){
