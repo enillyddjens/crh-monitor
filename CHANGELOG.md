@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.8.0 — 2026-10-11
+
+- Replace obsolete account-age claim tax with rolling 24h claim-count tiers: 5/10/20/40/80%. Reconstruct current tax from fresh complete same-wallet vault history when the game rate is absent.
+- Separate current Rewards tax from the daily-income claim cadence assumption, defaulting to 25h and 5%; retain manual overrides and mark unknown current tax at the documented maximum of 80%.
+- Split island electricity and estimated Care visibly below the total daily cost. Add observed neglect and estimated post-Care hash without substituting catalog output.
+- Add 25,000-token holding reserve, observed average/stake/eligibility metadata, cooldown, tax reset timing and historical average purchase-price context. Do not infer eligibility or token origin from spot balance.
+- Keep holding capital as an asset in PnL; do not subtract it again as a daily cost. Known claim blocks disable outstanding cash-payback estimates.
+- Exclude activity-driven claim-tax changes from economy-rule alerts. Preserve analytics, history, exports and the hidden legacy Budget UI.
+
 ## 1.7.1 — 2026-10-10
 
 - Promote separate payback and ROI for external cash and investment + reinvestment to the top of the overview; both remain visible without opening a section.

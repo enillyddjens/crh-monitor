@@ -22,7 +22,8 @@
       capitalUSD:number(p.capitalUSD),returnedUSD:number(p.returnedUSD) ?? 0,
       sellFeePct:Math.min(100,number(p.sellFeePct) ?? 3),
       careDailyUSD:number(p.careDailyUSD),gasDailyUSD:number(p.gasDailyUSD) ?? 0,
-      claimTaxPct:number(p.claimTaxPct)===null?null:Math.min(100,number(p.claimTaxPct))
+      claimTaxPct:number(p.claimTaxPct)===null?null:Math.min(100,number(p.claimTaxPct)),
+      claimEveryHours:Math.max(2,Math.min(168,number(p.claimEveryHours)??25))
     };
   }
   function cleanSettings(raw={}) {
@@ -54,15 +55,20 @@
     if(!raw||typeof raw!=='object')raw={};
     return {claimTaxPct:percent(raw.claimTaxBps,raw.claimTaxPct),claimTaxNextPct:percent(raw.claimTaxNextBps,raw.claimTaxNextPct),
       claimTaxNextAt:number(raw.claimTaxNextAt),taxAgeHours:number(raw.taxAgeHours),netClaimableWei:wei(raw.netClaimableWei),
+      claims24h:Number.isInteger(number(raw.claims24h))?number(raw.claims24h):null,lastClaimAt:number(raw.lastClaimAt),nextClaimAt:number(raw.nextClaimAt),
+      claimHoldRequiredWei:wei(raw.claimHoldRequiredWei),claimHoldAverageWei:wei(raw.claimHoldAverageWei),claimStakeWei:wei(raw.claimStakeWei),
+      claimEligible:typeof raw.claimEligible==='boolean'?raw.claimEligible:null,
       carePct:percent(raw.careBps,raw.carePct),careMinimumUSD:number(raw.careMinimumUSD),careNowUSD:number(raw.careNowUSD),
       careNowWei:wei(raw.careNowWei),careDailyUSD:number(raw.careDailyUSD)};
   }
   function operatingFromState(raw){
-    const r=raw.rewards||{},tax=r.claim_tax||{},care=raw.care||raw.maintenance||{},rules=raw.rules?.care||raw.rules?.maintenance||{};
+    const r=raw.rewards||{},tax=r.claim_tax||{},gate=r.claim_eligibility||r.hold_requirement||{},care=raw.care||raw.maintenance||{},rules=raw.rules?.care||raw.rules?.maintenance||{};
     return operating({
       claimTaxBps:r.claim_tax_bps??tax.rate_bps??tax.bps,claimTaxPct:r.claim_tax_percent??r.claim_tax_pct??tax.percent??tax.rate_percent,
       claimTaxNextBps:tax.next_rate_bps,claimTaxNextPct:tax.next_percent,claimTaxNextAt:timestamp(tax.next_at??tax.next_change_at),
       taxAgeHours:tax.age_hours??tax.played_hours,netClaimableWei:r.net_claimable_wei??r.claimable_net_wei??tax.net_claimable_wei,
+      claims24h:r.claims_last_24h??tax.claims_last_24h??tax.claim_count_24h,lastClaimAt:timestamp(r.last_claim_at??tax.last_claim_at),nextClaimAt:timestamp(r.next_claim_at??r.claim_cooldown_ends_at),
+      claimHoldRequiredWei:gate.required_wei??r.claim_hold_required_wei,claimHoldAverageWei:gate.average_wei??r.claim_hold_average_wei,claimStakeWei:gate.staked_wei??r.claim_staked_wei,claimEligible:gate.eligible??r.claim_eligible,
       careBps:care.daily_rate_bps??care.rate_bps??rules.daily_rate_bps,carePct:care.daily_rate_percent??care.rate_percent??rules.daily_rate_percent,
       careMinimumUSD:number(care.min_usd_micro)!==null?number(care.min_usd_micro)/1e6:null,
       careNowUSD:number(care.total_usd_micro)!==null?number(care.total_usd_micro)/1e6:null,careNowWei:care.total_wei??care.quote_wei,

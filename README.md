@@ -1,4 +1,4 @@
-# CRH Monitor 1.7.1
+# CRH Monitor 1.8.0
 
 Payback and ROI are always visible at the top of the overview, with separate external-cash and investment + reinvestment columns. Project PnL is available below in an expandable section.
 
@@ -11,21 +11,23 @@ An independent, read-only browser extension for **Computers RH**. Track your CRH
 ![CRH Monitor overview with clearly marked demo values](https://github.com/enillyddjens/crh-monitor/raw/main/docs/media/01-overview.png)
 
 
-## Operating income in v1.7.0
+## Operating income and claims in v1.8.0
 
-The main screen now focuses on **Daily net income** and **Energy and care / day**. The Budget tab is hidden: the previous investment search is not adapted to the new rules and is not presented as a current recommendation. Saved forecasts remain in local storage and account exports; historical planner descriptions below refer to earlier versions.
+The main screen now focuses on **Daily net income** and **Island costs / day**, with electricity and Care split directly underneath. The Budget tab is hidden: the previous investment search is not adapted to the new rules and is not presented as a current recommendation. Saved forecasts remain in local storage and account exports; historical planner descriptions below refer to earlier versions.
 
 Net income uses your observed server reward rate, current CRH quote, claim tax, selling-fee assumption, electricity, Care and configured daily gas. Care automatically budgets fans, paste and repairs together, at the observed percentage or the documented default of 10% of mining earnings before referral withholding. A manual care amount replaces this automatic budget. The $0.05 Care minimum is counted once for a grouped payment; the daily minimum assumes Care all PCs every six hours. This is an operating-cost estimate, not a service quote or an automation. Current neglect losses stay in the server hashrate; active overclock wear is budgeted when its metadata is observed. Hash loss between services and expiry of boosts can reduce the future earnings rate.
 
-Exports from versions before v1.7.0 do not contain claim-tax or Care-rule metadata. New state reads keep allowlisted fields when supplied by the game. Missing claim tax uses an **explicitly estimated maximum of 10%**, never 0%; Settings can override the actual rate, including 0%. An observed net claim amount takes priority. Confirmed tax-age thresholds or announced tax changes can adjust the 24-hour estimate. Current unclaimed Rewards are valued after current claim tax, while actual on-chain payouts are already net and are not taxed again. Unknown Care costs leave net income unavailable instead of assuming free repairs.
+Current claim tax follows the number of previous claims in the rolling 24-hour window: 5%, 10%, 20%, 40%, then 80%. The game rate or observed net claim takes priority; a fresh complete same-wallet vault ledger can reconstruct the count. Legacy account-age tiers are not used. Unknown current tax uses a clearly marked 80% maximum for existing Rewards. Daily income uses a separate, explicit claim-cadence assumption: default 25 hours gives 5%; 12 hours gives 10%, 6 hours 40%, 2 hours 80%. Settings can adjust cadence or override tax manually. Actual wallet payouts are already net and are never taxed again.
 
 **Payback and ROI** shows two bases: external cash spent buying CRH and external cash plus reward-funded reinvestment. Payback subtracts actual sale proceeds net of recorded gas, then divides what remains by current daily net income. ROI compares wallet CRH, net Rewards and net sale proceeds against each base; it is a mark-to-market result, not recovered cash. Valued wallet transfers do not count as sales. Missing history or gas leaves the estimate unavailable.
+
+Open **Care and claim requirements** for observed neglect, estimated recovered hash and the holding reserve. Docs require a 12-hour average of at least 25,000 tokens, including staked tokens, and a 2-hour cooldown. The extension does not infer eligibility or qualifying token origin from spot wallet balance. A wallet floor is a conservative reserve estimate, not an exact 12-hour average. Unclaimed Rewards are excluded from the wallet reserve. Required holding remains an asset in PnL, not a recurring expense. Average historical CRH purchase price is used only as an illustrative acquisition estimate for that reserve; operating expenses use the current game quote.
 
 Open **24-hour income and costs** for each deduction and its assumptions. An available Care-all quote is shown separately from the recurring daily reserve. Continuous-day income assumes energy refills and the current reward budget; it is not a promise for the next game day. No claim, Care, refill, overclock or investment is executed.
 
 ## Install
 
-1. Download **crh-monitor-v1.7.1.zip** from GitHub Releases and extract it.
+1. Download **crh-monitor-v1.8.0.zip** from GitHub Releases and extract it.
 2. Open `chrome://extensions` or `edge://extensions` and enable **Developer mode**.
 3. Choose **Load unpacked** and select the extracted **crh-monitor** folder containing `manifest.json`.
 4. Pin the extension icon and reload your [Computers RH game tab](https://www.computersrh.xyz/play/island).
