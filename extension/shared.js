@@ -44,7 +44,7 @@
     const out={};for(const key of [...new Set(['case','board','motherboard','cpu','gpu','ram','ssd','psu','cooler','cpu_cooler','fans','fan','case_fans','system',...Object.keys(raw||{}).filter(k=>/^(ram|fan|fans|case_fan)[_-]?\d{1,2}$/.test(k))])]){const v=raw?.[key];if(itemId(v))out[key]=v;else if(Array.isArray(v))out[key]=v.map(itemId).filter(Boolean).slice(0,16);}return out;
   }
   const level=v=>{const n=number(v);return Number.isInteger(n)&&n>=0&&n<=10?n:null;};
-  const pcs=v=>Array.isArray(v)?v.slice(0,8).filter(p=>itemId(p?.id)).map(p=>({id:p.id,plot:number(p.plot),ready:p.ready===true,running:p.running===true,powered:p.powered===true,hash:number(p.hash),healthyHash:number(p.healthyHash),partsHash:number(p.partsHash),efficiencyMultiplier:number(p.efficiencyMultiplier),gpuLevel:level(p.gpuLevel),gpuUpgradeEnd:number(p.gpuUpgradeEnd),watts:number(p.watts),overclockWear:Math.max(1,Math.min(3,number(p.overclockWear)??1)),overclockEnd:number(p.overclockEnd),cpuC:number(p.cpuC),gpuC:number(p.gpuC),thermalLossPct:number(p.thermalLossPct),wearLossPct:number(p.wearLossPct),autoPaste:{cpu:p.autoPaste?.cpu===true,gpu:p.autoPaste?.gpu===true},slots:slots(p.slots),towerSlots:slots(p.towerSlots)})):[];
+  const pcs=(v,limit=8)=>Array.isArray(v)?v.slice(0,limit).filter(p=>itemId(p?.id)).map(p=>({id:p.id,plot:number(p.plot),ready:p.ready===true,running:p.running===true,powered:p.powered===true,hash:number(p.hash),healthyHash:number(p.healthyHash),partsHash:number(p.partsHash),efficiencyMultiplier:number(p.efficiencyMultiplier),gpuLevel:level(p.gpuLevel),levelFactor:number(p.levelFactor),gpuUpgradeEnd:number(p.gpuUpgradeEnd),watts:number(p.watts),overclockWear:Math.max(1,Math.min(3,number(p.overclockWear)??1)),overclockEnd:number(p.overclockEnd),cpuC:number(p.cpuC),gpuC:number(p.gpuC),thermalLossPct:number(p.thermalLossPct),wearLossPct:number(p.wearLossPct),autoPaste:{cpu:p.autoPaste?.cpu===true,gpu:p.autoPaste?.gpu===true},slots:slots(p.slots),towerSlots:slots(p.towerSlots)})):[];
   const items=v=>Array.isArray(v)?v.slice(0,4000).filter(p=>itemId(p?.id)&&itemId(p?.catalog)).map(p=>({id:p.id,catalog:p.catalog,installedSetup:itemId(p.installedSetup??p.installed_setup),installedSlot:itemId(p.installedSlot??p.installed_slot),gpuLevel:level(p.gpuLevel??p.gpu_level??p.gpu_workshop?.level??p.workshop_level??p.gpu_upgrade_level??p.upgrade_level),gpuUpgradeEnd:timestamp(p.gpu_workshop?.ends_at??p.upgrade_ends_at)??number(p.gpuUpgradeEnd),wearMs:number(p.wearMs??p.wear_ms),cpuPasteAgeMs:number(p.cpuPasteAgeMs??p.cpu_paste_age_ms),gpuPasteAgeMs:number(p.gpuPasteAgeMs??p.gpu_paste_age_ms),fanAgeMs:number(p.fanAgeMs??p.fan_age_ms),conditionPct:number(p.conditionPct??p.condition_percent),repairUSD:number(p.repairUSD)??(number(p.repair_usd_micro)===null?null:Number(p.repair_usd_micro)/1e6),serviceUSD:number(p.serviceUSD)??(number(p.service_usd_micro)===null?null:Number(p.service_usd_micro)/1e6)})):[];
   const powerLevels=v=>Array.isArray(v)?v.slice(0,14).map(p=>({level:number(p.level),capacityW:number(p.capacityW??p.capacity_w),minutes:number(p.minutes),state:short(p.state)})).filter(p=>p.level!==null&&p.capacityW!==null):[];
 
@@ -76,6 +76,11 @@
       careDailyUSD:number(care.daily_usd_micro)!==null?number(care.daily_usd_micro)/1e6:null
     });
   }
+  function nftState(raw={}){
+    if(!raw||typeof raw!=='object')raw={};const tier=typeof raw.tier==='string'&&['D','C','B','A','S'].includes(raw.tier.toUpperCase())?raw.tier.toUpperCase():null;
+    return {active:typeof raw.active==='boolean'?raw.active:null,tier,boostPct:percent(raw.boost_bps,raw.boostPct??raw.boost_percent),capHash:number(raw.capHash??raw.cap_hashrate??raw.hash_cap_hs)};
+  }
+  function energyPricing(raw={}){if(!raw||typeof raw!=='object')raw={};return {mode:['earnings-share','mining-share','mining_share'].includes(raw.mode)?'earnings-share':null,ratePct:percent(raw.rateBps,raw.ratePct),dailyWei:wei(raw.dailyWei),ownedHash:number(raw.ownedHash),ownedWatts:number(raw.ownedWatts)};}
   function sanitizeState(raw) {
     if (!raw || typeof raw !== "object" || !wallet(raw.wallet)) return null;
     if (Number(raw.chain_id)!==4663 || wallet(raw.token)!==TOKEN.toLowerCase()) return null;
@@ -88,6 +93,10 @@
     return {
       wallet:wallet(raw.wallet),seenAt:Date.now(),serverNow:number(raw.server_now),
       settledAt:number(e.accrued_until??r.accrued_until),
+      nft:nftState(raw.nft_boost??i.nft_boost??raw.island?.nft_boost),
+      energyPricing:energyPricing({mode:energy.pricing_mode??energy.mode,rateBps:energy.mining_share_bps??energy.earnings_share_bps??raw.rules?.energy?.mining_share_bps,ratePct:energy.mining_share_percent,dailyWei:energy.daily_cost_wei??energy.daily_wei,ownedHash:number(energy.owned_healthy_hash_micro)===null?null:Number(energy.owned_healthy_hash_micro)/1e6,ownedWatts:energy.owned_power_w}),
+      storedPCs:pcs((Array.isArray(raw.stored_pcs)?raw.stored_pcs:Array.isArray(raw.storage?.pcs)?raw.storage.pcs:[]).map((p,i)=>({...p,id:p.id??'stored_'+i,ready:p.ready??true,running:false,healthyHash:p.healthyHash??p.healthy_base_hashrate,watts:p.watts??p.power_w})),200),
+      storedPCsKnown:Array.isArray(raw.stored_pcs)||Array.isArray(raw.storage?.pcs),
       version:short(raw.version),settlement:short(raw.settlement_status),operating:operatingFromState(raw),
       priceUSD:price,priceQuotable:raw.price?.quotable===true,
       priceSource:short(raw.price?.source),
@@ -130,6 +139,7 @@
     strings.forEach(k=>out[k]=short(s[k]));
     weis.forEach(k=>out[k]=wei(s[k]));
     ["priceQuotable","rateConfirmed","running","claimBlocked"].forEach(k=>out[k]=s[k]===true);
+    out.nft=nftState(s.nft);out.energyPricing=energyPricing(s.energyPricing);out.storedPCs=pcs(s.storedPCs,200);out.storedPCsKnown=s.storedPCsKnown===true;
     out.operating=operating(s.operating);
     out.rateChange=s.rateChange?{rateBps:number(s.rateChange.rateBps),startsAt:number(s.rateChange.startsAt)}:null;
     out.construction={power:constructionLevels(s.construction?.power),plots:constructionLevels(s.construction?.plots),hall:constructionLevels(s.construction?.hall)};out.packageLimits=limits(s.packageLimits);

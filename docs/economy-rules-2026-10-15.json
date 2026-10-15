@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "verified_date": "2026-10-15",
+  "sources": [
+    {
+      "url": "https://www.computersrh.xyz/docs/",
+      "status": "read_in_browser"
+    },
+    {
+      "url": "https://www.computersrh.xyz/docs/island",
+      "status": "read_in_browser"
+    },
+    {
+      "url": "https://www.computersrh.xyz/docs/power",
+      "status": "read_in_browser"
+    },
+    {
+      "url": "https://www.computersrh.xyz/docs/energy",
+      "status": "read_in_browser"
+    },
+    {
+      "url": "https://www.computersrh.xyz/docs/pc-building",
+      "status": "read_in_browser"
+    },
+    {
+      "url": "https://www.computersrh.xyz/docs/heat-and-care",
+      "status": "read_in_browser"
+    },
+    {
+      "url": "https://www.computersrh.xyz/docs/island-bonus",
+      "status": "read_in_browser"
+    },
+    {
+      "url": "https://www.computersrh.xyz/docs/rewards",
+      "status": "read_in_browser"
+    },
+    {
+      "url": "https://www.computersrh.xyz/docs/market",
+      "status": "read_in_browser"
+    },
+    {
+      "url": "https://www.computersrh.xyz/docs/questions",
+      "status": "read_in_browser"
+    },
+    {
+      "url": "https://www.computersrh.xyz/docs/nft",
+      "status": "read_in_browser"
+    }
+  ],
+  "rules": {
+    "energy": {
+      "daily_healthy_mining_fraction": 0.05,
+      "includes_off_and_stored_complete_pcs": true,
+      "max_storage_hours": 168,
+      "refill_hours": [
+        12,
+        24,
+        72
+      ]
+    },
+    "care": {
+      "default_rate_fraction": 0.1,
+      "server_rate_priority": true,
+      "usd_minimum": 0,
+      "temperature_depends_on_neglect": false
+    },
+    "workshop": {
+      "usd_minimum": 0,
+      "raw_gpu_hash_price_basis": true
+    },
+    "nft": {
+      "additive": true,
+      "base_hash_cap_default": 500,
+      "boost_pct_by_tier": {
+        "D": 5,
+        "C": 10,
+        "B": 20,
+        "A": 40,
+        "S": 80
+      },
+      "activation_usd": 2,
+      "deactivation_usd": 2
+    },
+    "ordinary_claim_tax_pct": [
+      5,
+      10,
+      20,
+      40,
+      80
+    ],
+    "social_only_claim_counts_for_tax": false
+  },
+  "limits": [
+    "Docs defaults are not proof of the current account-specific server rate.",
+    "No fresh personal game state was available during this update.",
+    "Unknown storage coverage is marked; unknown island boosts block route recommendations.",
+    "Historical operation values are never rewritten using current rules."
+  ],
+  "verified_at_utc": "2026-10-15T16:59:20.971817+00:00"
+}

@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.10.0 — 2026-10-15
+
+- Recheck every official Docs chapter. Replace fixed $/kWh with a 5% healthy-owned-mining energy model in daily income and development; include known off/stored complete PCs and disclose incomplete coverage.
+- Remove obsolete Care / Workshop dollar floors. Use the documented 10% Care default when no current game rate is provided; retain manual and server quotes.
+- Stop adding dusty-fan / dry-paste temperature penalties; neglect still affects output. Add GPU-only observed level inference with overclock safeguards.
+- Include confirmed active NFT boosts additively with the current base-hash cap (Docs: 500 H/s). Reject unknown unexplained boosts and stopped-mining route calculations.
+- Stop treating ambiguous vault payouts as ordinary claims; Social-only claims do not raise mining tax. Preserve historical transaction prices and both ROI bases.
+- Invalidate old-rule recommendations while keeping saved history, analytics, frozen forecasts and selected wallets. No permissions or game mutations added.
+
 ## 1.8.0 — 2026-10-11
 
 - Replace obsolete account-age claim tax with rolling 24h claim-count tiers: 5/10/20/40/80%. Reconstruct current tax from fresh complete same-wallet vault history when the game rate is absent.
