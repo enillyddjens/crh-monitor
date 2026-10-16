@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "CRH Monitor",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "description": "__MSG_extensionDescription__",
   "permissions": [
     "storage",
@@ -34,6 +34,7 @@
       "js": [
         "page-core.js",
         "project-core.js",
+        "game-observations.js",
         "bridge.js"
       ],
       "run_at": "document_start",

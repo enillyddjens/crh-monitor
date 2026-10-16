@@ -29,23 +29,24 @@
   const cadence=m.p.claimEveryHours,dayTax=claimTax.source==='manual'?claimTax.pct:taxTier(Math.max(0,Math.ceil(24/cadence)-1));
   const gross=m.grossDaily,energyQuote=E.energy(own,m.budget,m.quote?.totalHash,m.price,now),energy=energyQuote.dailyUSD;
   const beforeReferral=own&&m.budget!==null&&m.quote?.totalHash>0&&own.myHash!==null&&m.price!==null?m.budget*own.myHash/m.quote.totalHash*m.price:null;
-  const carePct=validPct(o.carePct)??10,careMinimum=0;
+  const careRate=E.careRate(own,now),carePct=careRate.pct,careMinimum=0,promo=E.sale(own,now);
   const pcs=(own?.pcs||[]).filter(p=>p.running&&p.ready&&p.hash>0),sumHash=pcs.reduce((s,p)=>s+p.hash,0);
   const wear=sumHash>0?pcs.reduce((s,p)=>{const hours=p.overclockEnd?Math.max(0,Math.min(24,(p.overclockEnd-now)/3600000)):24;return s+p.hash*(1+((C.number(p.overclockWear)??1)-1)*hours/24)},0)/sumHash:1;
+  const careClockFactor=sumHash>0?pcs.reduce((sum,p)=>{const hours=p.overclockEnd?Math.max(0,Math.min(24,(p.overclockEnd-now)/3600000)):24,wear=1+((C.number(p.overclockWear)??1)-1)*hours/24,fan=E.fanCare(own,p,now);return sum+p.hash*(1+(fan===false?0:1)+wear)/3},0)/sumHash:1;
   let care=null,careSource='docs-estimate';
   if(own&&!running){care=0;careSource='stopped';}
   else if(m.p.careDailyUSD!==null){care=m.p.careDailyUSD;careSource='manual';}
-  else if(C.number(o.careDailyUSD)!==null){care=o.careDailyUSD;careSource='game-daily';}
-  else if(beforeReferral!==null){care=beforeReferral*carePct/100*(2+wear)/3;careSource=validPct(o.carePct)!==null?'game-rate-estimate':'docs-default-estimate';}
+  else if(C.number(o.careDailyUSD)!==null){care=o.careDailyUSD*(o.careDailyDiscounted===false?promo.factor:1);careSource='game-daily';}
+  else if(beforeReferral!==null){care=beforeReferral*carePct/100*careClockFactor*promo.factor;careSource=careRate.source;}
   const taxCost=gross!==null?gross*dayTax/100:null,received=gross!==null?gross-taxCost:null;
   const sellCost=received!==null?received*m.p.sellFeePct/100:null,gas=m.p.gasDailyUSD;
   const operating=energy!==null&&care!==null?energy+care:null;
   const net=received!==null&&operating!==null?received-sellCost-operating-gas:null;
   const currentNetClaim=C.units(o.netClaimableWei),socialClaimable=Math.min(m.claimable??0,C.units(o.socialClaimableWei)??0);
   const netClaimable=m.claimable!==null?(claimTax.source!=='manual'&&currentNetClaim!==null&&currentNetClaim<=m.claimable?currentNetClaim:(m.claimable-socialClaimable)*(1-claimTax.pct/100)+socialClaimable):null;
-  const careNow=C.number(o.careNowUSD)??(C.units(o.careNowWei)!==null&&m.price!==null?C.units(o.careNowWei)*m.price:null);
-  return {model:E.REVISION,asOf:own?.seenAt??null,priceUSD:m.price,priceAt:m.quote?.seenAt??null,personalHash:own?.myHash??null,totalHash:m.quote?.totalHash??null,budgetCRH:m.budget,dayEnd:own?.dayEnd??null,dailyCRH:m.dailyTokens,grossDailyUSD:gross,energyDailyUSD:energy,energyDailyCRH:energyQuote.dailyCRH,energySource:energyQuote.source,energyEstimated:energyQuote.estimated,energyPricing:energyQuote,nft:E.nft(own),careDailyUSD:care,carePct,careSource,
-    careEstimated:!['manual','game-daily','stopped'].includes(careSource),careCadenceHours:6,careMinimumUSD:careMinimum,careNowUSD:careNow,
+  const uiCare=E.freshUI(own,now)?.careQuote,careNowServer=C.number(o.careNowUSD)??(C.units(o.careNowWei)!==null&&m.price!==null?C.units(o.careNowWei)*m.price:null),careNow=careNowServer??(uiCare&&now-uiCare.at<90000&&uiCare.at<=now+5000&&m.price!==null?uiCare.tokens*m.price:null);
+  return {model:E.REVISION,asOf:own?.seenAt??null,priceUSD:m.price,priceAt:m.quote?.seenAt??null,personalHash:own?.myHash??null,totalHash:m.quote?.totalHash??null,budgetCRH:m.budget,dayEnd:own?.dayEnd??null,dailyCRH:m.dailyTokens,grossDailyUSD:gross,energyDailyUSD:energy,energyDailyCRH:energyQuote.dailyCRH,energySource:energyQuote.source,energyEstimated:energyQuote.estimated,energyPricing:energyQuote,nft:E.nft(own),careDailyUSD:care,carePct,careSource,careClockFactor,sale:promo,
+    careEstimated:!['manual','game-daily','stopped'].includes(careSource),careCadenceHours:6,careMinimumUSD:careMinimum,careNowUSD:careNow,careNowEstimated:careNowServer===null&&careNow!==null,
     claimTaxPct:claimTax.pct,claimTaxDayPct:dayTax,claimTaxSource:claimTax.source,claimTaxEstimated:claimTax.estimated,claimTaxDailyUSD:taxCost,
     claimEveryHours:cadence,claimTaxDaySource:claimTax.source==='manual'?'manual':'cadence-assumption',claimTaxDayEstimated:claimTax.source!=='manual',claims24h:claimTax.count,lastClaimAt:claimTax.lastAt,
     nextClaimAt:C.number(o.nextClaimAt)??(claimTax.lastAt!==null?claimTax.lastAt+2*3600000:null),lowTaxAt:C.number(o.claimTaxNextPct)===5&&C.number(o.claimTaxNextAt)!==null?o.claimTaxNextAt:claimTax.lastAt!==null?claimTax.lastAt+DAY:null,
@@ -86,7 +87,7 @@
   }
   return {model:'cash-and-reinvestment-returns-v1',external:basis(pnl.initialInvestment),total:basis(pnl.totalInvestment),
     saleProceedsUSD:known?sales:null,recordedGasUSD:pnl.unresolvedGas?null:pnl.gas,cashAfterGasUSD:known?cashAfterGas:null,
-    estimated:!!(m.income?.careEstimated||m.income?.claimTaxDayEstimated),asOf:m.own?.seenAt??null};
+    estimated:!!(m.income?.energyEstimated||m.income?.careEstimated||m.income?.claimTaxDayEstimated),asOf:m.own?.seenAt??null};
  }
  const api={analyze,compute,capitalReturns,careAdvice,claimAccess};globalThis.CRHIncome=api;if(typeof module!=='undefined')module.exports=api;
 })();

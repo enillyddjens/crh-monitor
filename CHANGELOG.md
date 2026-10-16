@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.11.0 — 2026-10-16
+
+- Replace builder dollar formulas with mining-day prices and per-level floors; prefer explicit game rules.
+- Extend Workshop through Lv20 (+125% GPU share), apply 20% / 25% try prices and 15–170 minute timers, and parallel equal-card batches. Keep pending random outcomes unknown.
+- Apply the announced 25% sale through 17 October, 15:47 UTC. Reprice unpaid future actions; retain paid orders, historical accounting and already-discounted quotes.
+- Read allowlisted visible My PCs data for real Care rates, fanless clocks and GPU levels, with wallet/session-bound expiry. Keep rounded Care-all quotes separate from daily reserves; prefer fresh 24h refill quotes.
+- Separate mining gains from fixed referral income and disclose missing mining-only rates. Preserve frozen forecasts, analytics, funding reconciliation and holding reserves. No new permissions or game mutations.
+
 ## 1.10.0 — 2026-10-15
 
 - Recheck every official Docs chapter. Replace fixed $/kWh with a 5% healthy-owned-mining energy model in daily income and development; include known off/stored complete PCs and disclose incomplete coverage.

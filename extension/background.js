@@ -62,7 +62,7 @@ async function acceptSnapshot(raw,sender){
   const x=await chrome.storage.local.get(["games","market","history","settings","project","chain","accountDynamics"]);
   const games=x.games||{};
   if(games[s.wallet]?.seenAt>s.seenAt)return {ok:true};
-  const previous=games[s.wallet];
+  const previous=games[s.wallet];C.mergeUI(s,previous);
   const operationsChanged=!!previous&&((s.claimedWei!==null&&previous.claimedWei!==null&&s.claimedWei!==previous.claimedWei)||(s.spentUSD!==null&&previous.spentUSD!==null&&s.spentUSD!==previous.spentUSD));
   games[s.wallet]=s;
   const sorted=Object.entries(games).sort((a,b)=>a[1].seenAt-b[1].seenAt).slice(-8);

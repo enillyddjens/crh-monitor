@@ -43,12 +43,12 @@
   function slots(raw={}) {
     const out={};for(const key of [...new Set(['case','board','motherboard','cpu','gpu','ram','ssd','psu','cooler','cpu_cooler','fans','fan','case_fans','system',...Object.keys(raw||{}).filter(k=>/^(ram|fan|fans|case_fan)[_-]?\d{1,2}$/.test(k))])]){const v=raw?.[key];if(itemId(v))out[key]=v;else if(Array.isArray(v))out[key]=v.map(itemId).filter(Boolean).slice(0,16);}return out;
   }
-  const level=v=>{const n=number(v);return Number.isInteger(n)&&n>=0&&n<=10?n:null;};
-  const pcs=(v,limit=8)=>Array.isArray(v)?v.slice(0,limit).filter(p=>itemId(p?.id)).map(p=>({id:p.id,plot:number(p.plot),ready:p.ready===true,running:p.running===true,powered:p.powered===true,hash:number(p.hash),healthyHash:number(p.healthyHash),partsHash:number(p.partsHash),efficiencyMultiplier:number(p.efficiencyMultiplier),gpuLevel:level(p.gpuLevel),levelFactor:number(p.levelFactor),gpuUpgradeEnd:number(p.gpuUpgradeEnd),watts:number(p.watts),overclockWear:Math.max(1,Math.min(3,number(p.overclockWear)??1)),overclockEnd:number(p.overclockEnd),cpuC:number(p.cpuC),gpuC:number(p.gpuC),thermalLossPct:number(p.thermalLossPct),wearLossPct:number(p.wearLossPct),autoPaste:{cpu:p.autoPaste?.cpu===true,gpu:p.autoPaste?.gpu===true},slots:slots(p.slots),towerSlots:slots(p.towerSlots)})):[];
+  const level=v=>{const n=number(v);return Number.isInteger(n)&&n>=0&&n<=20?n:null;};
+  const pcs=(v,limit=8)=>Array.isArray(v)?v.slice(0,limit).filter(p=>itemId(p?.id)).map(p=>({id:p.id,plot:number(p.plot),ready:p.ready===true,running:p.running===true,powered:p.powered===true,hash:number(p.hash),healthyHash:number(p.healthyHash),partsHash:number(p.partsHash),efficiencyMultiplier:number(p.efficiencyMultiplier),gpuLevel:level(p.gpuLevel),fanCare:typeof p.fanCare==='boolean'?p.fanCare:null,levelFactor:number(p.levelFactor),gpuUpgradeEnd:number(p.gpuUpgradeEnd),watts:number(p.watts),overclockWear:Math.max(1,Math.min(3,number(p.overclockWear)??1)),overclockEnd:number(p.overclockEnd),cpuC:number(p.cpuC),gpuC:number(p.gpuC),thermalLossPct:number(p.thermalLossPct),wearLossPct:number(p.wearLossPct),autoPaste:{cpu:p.autoPaste?.cpu===true,gpu:p.autoPaste?.gpu===true},slots:slots(p.slots),towerSlots:slots(p.towerSlots)})):[];
   const items=v=>Array.isArray(v)?v.slice(0,4000).filter(p=>itemId(p?.id)&&itemId(p?.catalog)).map(p=>({id:p.id,catalog:p.catalog,installedSetup:itemId(p.installedSetup??p.installed_setup),installedSlot:itemId(p.installedSlot??p.installed_slot),gpuLevel:level(p.gpuLevel??p.gpu_level??p.gpu_workshop?.level??p.workshop_level??p.gpu_upgrade_level??p.upgrade_level),gpuUpgradeEnd:timestamp(p.gpu_workshop?.ends_at??p.upgrade_ends_at)??number(p.gpuUpgradeEnd),wearMs:number(p.wearMs??p.wear_ms),cpuPasteAgeMs:number(p.cpuPasteAgeMs??p.cpu_paste_age_ms),gpuPasteAgeMs:number(p.gpuPasteAgeMs??p.gpu_paste_age_ms),fanAgeMs:number(p.fanAgeMs??p.fan_age_ms),conditionPct:number(p.conditionPct??p.condition_percent),repairUSD:number(p.repairUSD)??(number(p.repair_usd_micro)===null?null:Number(p.repair_usd_micro)/1e6),serviceUSD:number(p.serviceUSD)??(number(p.service_usd_micro)===null?null:Number(p.service_usd_micro)/1e6)})):[];
   const powerLevels=v=>Array.isArray(v)?v.slice(0,14).map(p=>({level:number(p.level),capacityW:number(p.capacityW??p.capacity_w),minutes:number(p.minutes),state:short(p.state)})).filter(p=>p.level!==null&&p.capacityW!==null):[];
 
-  const constructionLevels=v=>Array.isArray(v)?v.slice(0,14).map(p=>({level:number(p.level??p.plot),capacityW:number(p.capacityW??p.capacity_w),minutes:number(p.minutes),minHall:number(p.minHall??p.min_island_level),minPlots:number(p.minPlots??p.min_plots),bonusPct:number(p.bonusPct)??(number(p.total_bonus_bps)===null?null:Number(p.total_bonus_bps)/100),hashCap:number(p.hashCap)??(number(p.pc_hash_cap_micro)===null?null:Number(p.pc_hash_cap_micro)/1e6),usd:number(p.usd)??(number(p.usd_micro)===null?null:Number(p.usd_micro)/1e6),baseUSD:number(p.baseUSD)??(number(p.price_base_usd_micro)===null?null:Number(p.price_base_usd_micro)/1e6),perHashUSD:number(p.perHashUSD)??(number(p.price_usd_micro_per_hs)===null?null:Number(p.price_usd_micro_per_hs)/1e6),state:short(p.state)})).filter(p=>p.level!==null):[];
+  const constructionLevels=v=>Array.isArray(v)?v.slice(0,14).map(p=>({level:number(p.level??p.plot),capacityW:number(p.capacityW??p.capacity_w),minutes:number(p.minutes),priceDays:number(p.priceDays??p.price_days??p.mining_days),floorHash:number(p.floorHash??p.floor_hash_hs??p.price_floor_hs),minHall:number(p.minHall??p.min_island_level),minPlots:number(p.minPlots??p.min_plots),bonusPct:number(p.bonusPct)??(number(p.total_bonus_bps)===null?null:Number(p.total_bonus_bps)/100),hashCap:number(p.hashCap)??(number(p.pc_hash_cap_micro)===null?null:Number(p.pc_hash_cap_micro)/1e6),usd:number(p.usd)??(number(p.usd_micro)===null?null:Number(p.usd_micro)/1e6),baseUSD:number(p.baseUSD)??(number(p.price_base_usd_micro)===null?null:Number(p.price_base_usd_micro)/1e6),perHashUSD:number(p.perHashUSD)??(number(p.price_usd_micro_per_hs)===null?null:Number(p.price_usd_micro_per_hs)/1e6),state:short(p.state)})).filter(p=>p.level!==null):[];
   const limits=v=>Array.isArray(v)?v.slice(0,40).map(p=>({id:itemId(p.id),owned:number(p.owned),max:number(p.max)})).filter(p=>p.id):[];
   const percent=(bps,pct)=>number(bps)!==null&&number(bps)<=10000?number(bps)/100:number(pct)!==null&&number(pct)<=100?number(pct):null;
   const timestamp=v=>{const n=number(v);if(n!==null)return n<1e12?n*1000:n;const t=typeof v==='string'&&!/^[+-]?\d+(?:\.\d+)?$/.test(v)?Date.parse(v):NaN;return Number.isFinite(t)&&t>=0?t:null};
@@ -60,20 +60,20 @@
       claimHoldRequiredWei:wei(raw.claimHoldRequiredWei),claimHoldAverageWei:wei(raw.claimHoldAverageWei),claimStakeWei:wei(raw.claimStakeWei),
       claimEligible:typeof raw.claimEligible==='boolean'?raw.claimEligible:null,
       carePct:percent(raw.careBps,raw.carePct),careMinimumUSD:number(raw.careMinimumUSD),careNowUSD:number(raw.careNowUSD),
-      careNowWei:wei(raw.careNowWei),careDailyUSD:number(raw.careDailyUSD)};
+      careNowWei:wei(raw.careNowWei),careDailyUSD:number(raw.careDailyUSD),careDailyDiscounted:typeof raw.careDailyDiscounted==='boolean'?raw.careDailyDiscounted:null};
   }
   function operatingFromState(raw){
-    const r=raw.rewards||{},tax=r.claim_tax||{},gate=r.claim_eligibility||r.hold_requirement||{},care=raw.care||raw.maintenance||{},rules=raw.rules?.care||raw.rules?.maintenance||{};
+    const r=raw.rewards||{},tax=r.claim_tax||{},gate=r.claim_eligibility||r.hold_requirement||{},care=raw.care||raw.maintenance||raw.stats?.maintenance||{},rules=raw.rules?.care||raw.rules?.maintenance||{};
     return operating({
       claimTaxBps:r.claim_tax_bps??tax.rate_bps??tax.bps,claimTaxPct:r.claim_tax_percent??r.claim_tax_pct??tax.percent??tax.rate_percent,
       claimTaxNextBps:tax.next_rate_bps,claimTaxNextPct:tax.next_percent,claimTaxNextAt:timestamp(tax.next_at??tax.next_change_at),
       socialClaimableWei:r.social_claimable_wei??r.social?.claimable_wei??raw.social_pot?.claimable_wei,taxAgeHours:tax.age_hours??tax.played_hours,netClaimableWei:r.net_claimable_wei??r.claimable_net_wei??tax.net_claimable_wei,
       claims24h:r.claims_last_24h??tax.claims_last_24h??tax.claim_count_24h,lastClaimAt:timestamp(r.last_claim_at??tax.last_claim_at),nextClaimAt:timestamp(r.next_claim_at??r.claim_cooldown_ends_at),
       claimHoldRequiredWei:gate.required_wei??r.claim_hold_required_wei,claimHoldAverageWei:gate.average_wei??r.claim_hold_average_wei,claimStakeWei:gate.staked_wei??r.claim_staked_wei,claimEligible:gate.eligible??r.claim_eligible,
-      careBps:care.daily_rate_bps??care.rate_bps??rules.daily_rate_bps,carePct:care.daily_rate_percent??care.rate_percent??rules.daily_rate_percent,
+      careBps:care.daily_rate_bps??care.rate_bps??raw.maintenance_daily_rate_bps??rules.daily_rate_bps,carePct:care.daily_rate_percent??care.rate_percent??raw.maintenance_daily_rate_percent??rules.daily_rate_percent,
       careMinimumUSD:number(care.min_usd_micro)!==null?number(care.min_usd_micro)/1e6:null,
       careNowUSD:number(care.total_usd_micro)!==null?number(care.total_usd_micro)/1e6:null,careNowWei:care.total_wei??care.quote_wei,
-      careDailyUSD:number(care.daily_usd_micro)!==null?number(care.daily_usd_micro)/1e6:null
+      careDailyDiscounted:care.daily_discounted,careDailyUSD:number(care.daily_usd_micro)!==null?number(care.daily_usd_micro)/1e6:null
     });
   }
   function nftState(raw={}){
@@ -81,6 +81,13 @@
     return {active:typeof raw.active==='boolean'?raw.active:null,tier,boostPct:percent(raw.boost_bps,raw.boostPct??raw.boost_percent),capHash:number(raw.capHash??raw.cap_hashrate??raw.hash_cap_hs)};
   }
   function energyPricing(raw={}){if(!raw||typeof raw!=='object')raw={};return {mode:['earnings-share','mining-share','mining_share'].includes(raw.mode)?'earnings-share':null,ratePct:percent(raw.rateBps,raw.ratePct),dailyWei:wei(raw.dailyWei),ownedHash:number(raw.ownedHash),ownedWatts:number(raw.ownedWatts)};}
+  function saleState(raw){if(!raw||typeof raw!=='object')return null;const pct=percent(raw.discount_bps,raw.pct??raw.discount_percent??raw.percent),endsAt=timestamp(raw.endsAt??raw.ends_at);return pct!==null&&endsAt!==null?{pct,startsAt:timestamp(raw.startsAt??raw.starts_at),endsAt,enabled:raw.enabled!==false}:null;}
+  function uiFacts(raw,w){if(!raw||wallet(raw.wallet)!==w||!number(raw.at))return null;return {wallet:w,at:number(raw.at),version:short(raw.version),carePct:percent(null,raw.carePct),careAt:number(raw.careAt),pcsAt:number(raw.pcsAt),pcs:Array.isArray(raw.pcs)?raw.pcs.slice(0,8).map(p=>({plot:number(p.plot),fanCare:typeof p.fanCare==='boolean'?p.fanCare:null,gpuLevel:level(p.gpuLevel),gpuItem:itemId(p.gpuItem)})):[],storedCount:number(raw.storedCount),careQuote:raw.careQuote&&number(raw.careQuote.at)!==null&&number(raw.careQuote.tokens)!==null?{at:number(raw.careQuote.at),tokens:number(raw.careQuote.tokens)}:null,energy:raw.energy&&number(raw.energy.at)!==null&&number(raw.energy.watts)!==null&&number(raw.energy.dailyTokens)!==null?{at:number(raw.energy.at),watts:number(raw.energy.watts),dailyTokens:number(raw.energy.dailyTokens)}:null};}
+  function mergeUI(snapshot,previous,now=Date.now()){
+    const old=uiFacts(previous?.uiFacts,snapshot.wallet),fresh=uiFacts(snapshot.uiFacts,snapshot.wallet),valid=x=>x&&x.version===(snapshot.version??null)&&x.at<=now+5000&&now-x.at<3600000;
+    let out=valid(old)?old:null;if(valid(fresh)){if(!out)out=fresh;else{out={...out,at:Math.max(out.at,fresh.at)};if(fresh.carePct!==null&&(fresh.careAt??0)>=(out.careAt??0)){out.carePct=fresh.carePct;out.careAt=fresh.careAt;}if(fresh.pcs.length&&(fresh.pcsAt??0)>=(out.pcsAt??0)){out.pcs=fresh.pcs;out.pcsAt=fresh.pcsAt;out.storedCount=fresh.storedCount;}if(fresh.careQuote&&fresh.careQuote.at>=(out.careQuote?.at??0))out.careQuote=fresh.careQuote;if(fresh.energy&&(fresh.energy.at>=(out.energy?.at??0)))out.energy=fresh.energy;}}
+    snapshot.uiFacts=out;return snapshot;
+  }
   function sanitizeState(raw) {
     if (!raw || typeof raw !== "object" || !wallet(raw.wallet)) return null;
     if (Number(raw.chain_id)!==4663 || wallet(raw.token)!==TOKEN.toLowerCase()) return null;
@@ -93,6 +100,7 @@
     return {
       wallet:wallet(raw.wallet),seenAt:Date.now(),serverNow:number(raw.server_now),
       settledAt:number(e.accrued_until??r.accrued_until),
+      sale:saleState(raw.sale??raw.shop_sale??raw.pricing?.sale),
       nft:nftState(raw.nft_boost??i.nft_boost??raw.island?.nft_boost),
       energyPricing:energyPricing({mode:energy.pricing_mode??energy.mode,rateBps:energy.mining_share_bps??energy.earnings_share_bps??raw.rules?.energy?.mining_share_bps,ratePct:energy.mining_share_percent,dailyWei:energy.daily_cost_wei??energy.daily_wei,ownedHash:number(energy.owned_healthy_hash_micro)===null?null:Number(energy.owned_healthy_hash_micro)/1e6,ownedWatts:energy.owned_power_w}),
       storedPCs:pcs((Array.isArray(raw.stored_pcs)?raw.stored_pcs:Array.isArray(raw.storage?.pcs)?raw.storage.pcs:[]).map((p,i)=>({...p,id:p.id??'stored_'+i,ready:p.ready??true,running:false,healthyHash:p.healthyHash??p.healthy_base_hashrate,watts:p.watts??p.power_w})),200),
@@ -112,7 +120,7 @@
       rateBps:number(e.daily_rate_bps??r.daily_rate_bps),
       rateConfirmed:e.daily_rate_confirmed===true && r.daily_rate_confirmed!==false,
       rateChange:e.daily_rate_change ? {rateBps:number(e.daily_rate_change.rate_bps),startsAt:number(e.daily_rate_change.starts_at)} : null,
-      hourlyWei:wei(r.rate_wei_per_hour),claimableWei,
+      hourlyWei:wei(r.rate_wei_per_hour),miningHourlyWei:wei(r.mining_rate_wei_per_hour??r.mining?.rate_wei_per_hour),claimableWei,
       miningEarnedWei:wei(r.mining_wei??r.earned_wei),referralEarnedWei:wei(r.referral_wei??r.referral_earned_wei),
       claimedWei:wei(r.claimed_wei),
       claimBlocked:!!r.claim_block,claimReason:short(r.claim_block),
@@ -134,12 +142,12 @@
     const out={wallet:wallet(s.wallet)};
     const numbers=["seenAt","serverNow","settledAt","priceUSD","totalHash","myHash","watts","energyHours","energyKwh","electricityUSD","dailyEnergyUSD","spentUSD","rateBps","dayEnd","bonusPct","hall","powerLevel","gridCapacity","gridReserved","builderEnd","builderQueueEnd","openPlots","queued","hashRecord","projectedHall","projectedPlots"];
     const strings=["version","settlement","priceSource","claimReason","builderName","economyRevision"];
-    const weis=["budgetWei","releasedWei","poolWei","hourlyWei","claimableWei","miningEarnedWei","referralEarnedWei","claimedWei"];
+    const weis=["budgetWei","releasedWei","poolWei","hourlyWei","miningHourlyWei","claimableWei","miningEarnedWei","referralEarnedWei","claimedWei"];
     numbers.forEach(k=>out[k]=number(s[k]));
     strings.forEach(k=>out[k]=short(s[k]));
     weis.forEach(k=>out[k]=wei(s[k]));
     ["priceQuotable","rateConfirmed","running","claimBlocked"].forEach(k=>out[k]=s[k]===true);
-    out.nft=nftState(s.nft);out.energyPricing=energyPricing(s.energyPricing);out.storedPCs=pcs(s.storedPCs,200);out.storedPCsKnown=s.storedPCsKnown===true;
+    out.uiFacts=uiFacts(s.uiFacts,out.wallet);out.sale=saleState(s.sale);out.nft=nftState(s.nft);out.energyPricing=energyPricing(s.energyPricing);out.storedPCs=pcs(s.storedPCs,200);out.storedPCsKnown=s.storedPCsKnown===true;
     out.operating=operating(s.operating);
     out.rateChange=s.rateChange?{rateBps:number(s.rateChange.rateBps),startsAt:number(s.rateChange.startsAt)}:null;
     out.construction={power:constructionLevels(s.construction?.power),plots:constructionLevels(s.construction?.plots),hall:constructionLevels(s.construction?.hall)};out.packageLimits=limits(s.packageLimits);
@@ -219,7 +227,7 @@
   const fmt=(n,d=2)=>n===null||n===undefined||!Number.isFinite(n)?"—":new Intl.NumberFormat("ru-RU",{maximumFractionDigits:d}).format(n);
   const usd=(n,d)=>n===null||n===undefined||!Number.isFinite(n)?"—":"$"+(d===undefined&&(n===0||Math.abs(n)>=.01)?new Intl.NumberFormat("ru-RU",{minimumFractionDigits:2,maximumFractionDigits:2}).format(n):fmt(n,d??6));
   const address=w=>wallet(w)?w.slice(0,6)+"…"+w.slice(-4):"—";
-  const api={DEFAULT_WALLET,TOKEN,VAULT,RPC,wallet,number,wei,units,defaults,position,cleanSettings,sanitizeState,validateSnapshot,sanitizeOrder,orderLabel,orderRequestMeta,mergeOrder,compute,fmt,usd,address};
+  const api={DEFAULT_WALLET,TOKEN,VAULT,RPC,wallet,number,wei,units,defaults,position,cleanSettings,sanitizeState,validateSnapshot,uiFacts,mergeUI,sanitizeOrder,orderLabel,orderRequestMeta,mergeOrder,compute,fmt,usd,address};
   globalThis.CRHMonitor=api;
   if(typeof module!=="undefined"&&module.exports)module.exports=api;
 })();

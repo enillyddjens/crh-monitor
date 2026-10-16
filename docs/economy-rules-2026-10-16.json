@@ -1,0 +1,250 @@
+{
+  "schema_version": 2,
+  "verified_date": "2026-10-16",
+  "sources": [
+    "https://www.computersrh.xyz/docs/island",
+    "https://www.computersrh.xyz/docs/power",
+    "https://www.computersrh.xyz/docs/pc-building",
+    "https://www.computersrh.xyz/docs/heat-and-care",
+    "https://www.computersrh.xyz/docs/energy",
+    "https://x.com/ComputersRh/status/2110910849816633622"
+  ],
+  "rules": {
+    "builder": {
+      "formula": "days * max(healthy_base_hash_record, floor_hs) * current_CRH_per_Hs_day * sale_factor",
+      "tables": {
+        "plots": [
+          null,
+          {
+            "days": 0,
+            "floor": 0
+          },
+          {
+            "days": 0.25,
+            "floor": 4
+          },
+          {
+            "days": 0.25,
+            "floor": 15
+          },
+          {
+            "days": 0.35,
+            "floor": 30
+          },
+          {
+            "days": 0.35,
+            "floor": 60
+          },
+          {
+            "days": 0.5,
+            "floor": 120
+          },
+          {
+            "days": 0.5,
+            "floor": 250
+          },
+          {
+            "days": 0.75,
+            "floor": 500
+          }
+        ],
+        "hall": [
+          null,
+          {
+            "days": 0,
+            "floor": 0
+          },
+          {
+            "days": 0.5,
+            "floor": 10
+          },
+          {
+            "days": 0.5,
+            "floor": 30
+          },
+          {
+            "days": 0.25,
+            "floor": 60
+          },
+          {
+            "days": 0.25,
+            "floor": 100
+          },
+          {
+            "days": 0.25,
+            "floor": 150
+          },
+          {
+            "days": 0.25,
+            "floor": 250
+          },
+          {
+            "days": 0.25,
+            "floor": 400
+          },
+          {
+            "days": 0.25,
+            "floor": 600
+          },
+          {
+            "days": 0.25,
+            "floor": 900
+          },
+          {
+            "days": 0.5,
+            "floor": 1500
+          }
+        ],
+        "power": [
+          {
+            "days": 0,
+            "floor": 0
+          },
+          {
+            "days": 0.1,
+            "floor": 400
+          },
+          {
+            "days": 0.1,
+            "floor": 475
+          },
+          {
+            "days": 0.1,
+            "floor": 575
+          },
+          {
+            "days": 0.1,
+            "floor": 725
+          },
+          {
+            "days": 0.2,
+            "floor": 900
+          },
+          {
+            "days": 0.2,
+            "floor": 1125
+          },
+          {
+            "days": 0.2,
+            "floor": 1375
+          },
+          {
+            "days": 0.2,
+            "floor": 1675
+          },
+          {
+            "days": 0.2,
+            "floor": 2000
+          },
+          {
+            "days": 0.3,
+            "floor": 2375
+          },
+          {
+            "days": 0.3,
+            "floor": 2800
+          },
+          {
+            "days": 0.3,
+            "floor": 3250
+          },
+          {
+            "days": 0.3,
+            "floor": 3725
+          }
+        ]
+      },
+      "record_excludes": [
+        "Workshop",
+        "island bonus",
+        "overclock"
+      ]
+    },
+    "workshop": {
+      "bonus_by_level": [
+        0,
+        0.12,
+        0.19,
+        0.26,
+        0.33,
+        0.4,
+        0.47,
+        0.54,
+        0.61,
+        0.68,
+        0.75,
+        0.8,
+        0.85,
+        0.9,
+        0.95,
+        1,
+        1.05,
+        1.1,
+        1.15,
+        1.2,
+        1.25
+      ],
+      "minutes_from_level": [
+        15,
+        27,
+        38,
+        50,
+        62,
+        73,
+        85,
+        97,
+        108,
+        120,
+        125,
+        130,
+        135,
+        140,
+        145,
+        150,
+        155,
+        160,
+        165,
+        170
+      ],
+      "try_fraction_from_level_0": 0.2,
+      "try_fraction_from_later_levels": 0.25,
+      "max_level": 20,
+      "usd_minimum": 0,
+      "price_basis": "raw GPU shop H/s with current level bonus only",
+      "parallel_per_card": true
+    },
+    "sale": {
+      "pct": 25,
+      "ends_at_utc": "2026-10-17T15:47:00.000Z",
+      "server_metadata_priority": true,
+      "never_double_discount_quotes": true,
+      "paid_orders_keep_price": true
+    },
+    "care": {
+      "docs_default_pct": 10,
+      "observed_live_ui_pct": 5,
+      "rate_priority": [
+        "current game API",
+        "fresh visible My PCs",
+        "marked Docs default"
+      ],
+      "fanless_clock_fraction": 0.6666666666666666,
+      "usd_minimum": 0,
+      "ui_rate_lifetime_ms": 3600000,
+      "rounded_ui_current_quote_lifetime_ms": 90000
+    },
+    "energy": {
+      "healthy_owned_fraction": 0.05,
+      "off_and_stored_complete_pcs": true,
+      "quoted_price_priority": true,
+      "ui_quote_lifetime_ms": 90000
+    }
+  },
+  "limits": [
+    "UI observations are wallet and session-version bound; missing evidence is not a confirmed live rate.",
+    "Observed rates and displayed quotes are separate from the documented default.",
+    "Full forecasts require fresh matching balances and reconciled history.",
+    "No current rules rewrite historical payments.",
+    "Bounded search finds alternatives, not a proof of global optimality."
+  ]
+}

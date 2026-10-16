@@ -1,7 +1,7 @@
 /* Observe safe economic fields. Session headers remain in this closure. */
 (() => {
  "use strict";
- const C=globalThis.CRHMonitor,P=globalThis.CRHProject,original=window.fetch;
+ const C=globalThis.CRHMonitor,P=globalThis.CRHProject,U=globalThis.CRHGameObservations,original=window.fetch;
  if(!C||!original||window.__crhMonitorBridge)return;
  window.__crhMonitorBridge=true;
  let headers=null,lastSeen=0,inflight=false,lastRefresh=0,lastSnapshot=null;
@@ -12,7 +12,7 @@
  function urlOf(input){try{return new URL(typeof input==="string"?input:input.url,location.href)}catch{return null}}
  function emit(raw){
    const s=C.sanitizeState(raw?.state??raw);
-   if(s){lastSeen=Date.now();lastSnapshot=s;window.postMessage({type:"CRH_MONITOR_STATE_V1",snapshot:s},location.origin)}
+   if(s){if(U)s.uiFacts=U.read(document,s,lastSnapshot?.wallet===s.wallet?lastSnapshot.uiFacts:null);lastSeen=Date.now();lastSnapshot=s;window.postMessage({type:"CRH_MONITOR_STATE_V1",snapshot:s},location.origin)}
  }
  function order(raw,meta={}){
    const o=raw?.order??raw,id=validId(o?.order_id??raw?.quote?.orderId??o?.orderId??meta.order_id);
@@ -104,4 +104,5 @@
  });
  document.addEventListener?.("visibilitychange",()=>{if(!document.hidden)refresh(false)});
  setInterval(()=>{refresh(false);refreshBoards(false)},15000);
+ if(U)setInterval(()=>{if(!lastSnapshot||document.hidden||Date.now()-lastSnapshot.seenAt>60000)return;const next=U.read(document,lastSnapshot,lastSnapshot.uiFacts);if(next&&JSON.stringify(next)!==JSON.stringify(lastSnapshot.uiFacts)&&(Date.now()-(lastSnapshot.uiFacts?.at??0)>3000)){lastSnapshot={...lastSnapshot,uiFacts:next};window.postMessage({type:"CRH_MONITOR_STATE_V1",snapshot:lastSnapshot},location.origin);}},5000);
 })();

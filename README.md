@@ -1,22 +1,22 @@
-# CRH Monitor 1.10.0
+# CRH Monitor 1.11.0
 
 An independent, read-only browser extension for **Computers RH**: income, payback, wallet accounting, economy history and mini-farm planning.
 
-**Chrome / Edge · English / Русский · Manifest V3 · Local storage**
+**Chrome / Edge В· English / Р СѓСЃСЃРєРёР№ В· Manifest V3 В· Local storage**
 
-[Download the latest release](https://github.com/enillyddjens/crh-monitor/releases/latest) · [Русская инструкция](README.ru.md)
+[Download the latest release](https://github.com/enillyddjens/crh-monitor/releases/latest) В· [Р СѓСЃСЃРєР°СЏ РёРЅСЃС‚СЂСѓРєС†РёСЏ](README.ru.md)
 
 ## Install or update
 
-1. Download **crh-monitor-v1.10.0.zip** from GitHub Releases and extract it.
+1. Download **crh-monitor-v1.11.0.zip** from GitHub Releases and extract it.
 2. Open `chrome://extensions` or `edge://extensions` and enable **Developer mode**.
 3. Choose **Load unpacked** and select the extracted **crh-monitor** folder containing `manifest.json`.
 4. Pin the extension and reload the game tab.
-5. Select your wallet in **⚙ → Wallet and calculation settings**, or connect it in the game. A fresh install adopts the first observed game wallet; an existing selection is preserved.
+5. Select your wallet in **вљ™ в†’ Wallet and calculation settings**, or connect it in the game. A fresh install adopts the first observed game wallet; an existing selection is preserved.
 
 For an update, replace the files in the existing unpacked folder, press **Reload** on the extension card, then reload the game tab. Keep the same extension folder / ID to preserve local history. Updates pushed to GitHub do not automatically replace an unpacked installation.
 
-Switch **EN / RU** at the top of the popup, dashboard or overlay. The language is saved across all three surfaces. First-install language follows the browser. The − button minimizes the game overlay.
+Switch **EN / RU** at the top of the popup, dashboard or overlay. The language is saved across all three surfaces. First-install language follows the browser. The в€’ button minimizes the game overlay.
 
 ## Income, payback and accounting
 
@@ -28,15 +28,23 @@ Switch **EN / RU** at the top of the popup, dashboard or overlay. The language i
 
 Current mining-claim tiers are 5 / 10 / 20 / 40 / 80% according to earlier claims in the rolling 24h window, with a minimum 2h pause. The observed game rate takes priority. Unknown current tax uses a marked 80% maximum for existing Rewards. Daily income assumes manual claims every 25h at 5%; cadence and tax can be changed in settings.
 
-Rules were rechecked against all official Docs chapters on **15 October 2026** ([energy](https://www.computersrh.xyz/docs/energy), [Care / overclock](https://www.computersrh.xyz/docs/heat-and-care), [Workshop](https://www.computersrh.xyz/docs/pc-building), [NFTs](https://www.computersrh.xyz/docs/nft)).
+Rules were rechecked against all official Docs chapters on **16 October 2026** ([energy](https://www.computersrh.xyz/docs/energy), [Care / overclock](https://www.computersrh.xyz/docs/heat-and-care), [Workshop](https://www.computersrh.xyz/docs/pc-building), [NFTs](https://www.computersrh.xyz/docs/nft)).
 
 **Energy is now 5% of healthy mining, paid in CRH.** The basis includes all complete owned PCs, including switched-off and stored PCs, with bonuses. Heat / neglect do not reduce this price. Running watts still size kWh consumption and the grid, but no longer set a fixed dollar operating cost. Refills are 12 / 24 / 72 hours with a seven-day storage limit. A fresh explicitly identified token-share server quote takes priority; otherwise the healthy-owned estimate is marked. Old $0.55/kWh snapshots are not reused as today's tariff. Incomplete storage or bonus coverage is disclosed, not presented as an exact quote.
 
-Care covers fans, paste and parts together, **with no dollar minimum**. A current server rate / daily quote takes priority; otherwise the documented **10% default is marked as an estimate**. Manual Care replaces the automatic reserve. The current Care-all quote is separate from recurring costs. Dust and paste age affect neglect loss only; they no longer increase modeled build temperature.
+Care covers fans, paste and parts together, **with no dollar minimum**. Fanless PCs have two care clocks: two thirds of the full rate. Open My PCs once after updating to read the current rate (observed: 5%), GPU levels and fan status when the API omits them. Observations expire after one hour and are wallet/session-bound. A rounded Care-all UI quote is marked approximate and expires after 90 seconds. PCs without case fans have no fan clock: two thirds of the full rate are reserved. The visible My PCs panel can supply the current rate (observed: 5%), GPU levels and fan status when the API omits them. Open My PCs once after an update; observations expire after one hour and never carry over to another wallet or session version. A rounded Care-all UI quote is marked approximate and expires after 90 seconds. A current server rate / daily quote takes priority; otherwise the documented **10% default is marked as an estimate**. Manual Care replaces the automatic reserve. The current Care-all quote is separate from recurring costs. Dust and paste age affect neglect loss only; they no longer increase modeled build temperature.
 
 Only ordinary mining / mixed claims affect the rolling claim count. A generic vault transfer cannot prove a payout type: ambiguous historical transfers do not establish a lower tax tier. Social-only claims do not raise mining tax.
 
 The game requires a qualifying 12h average holding of 25,000 CRH including stake. The extension keeps a conservative wallet floor, reduced by observed stake; spot balance does not prove eligibility or qualifying token origin. Holding is an asset, not a recurring expense. Average historical purchase price is an illustrative acquisition estimate for that reserve; game costs use the current quote.
+
+Builder quotes now use mining days × max(healthy base hash record, job floor) × current CRH per H/s/day. They are no longer base-dollar prices. Workshop, island and overclock boosts do not raise the construction record. Hall 11 has a 1,500 H/s floor; each power level uses the previous capacity as its floor. The verified rules table is in `docs/economy-rules-2026-10-16.json`.
+
+The announced **25% token-purchase sale ends 17 October 2026 at 15:47 UTC** ([official announcement](https://x.com/ComputersRh/status/2110910849816633622)). Explicit current game sale metadata takes priority. Estimates apply the discount once; already-discounted server/refill quotes are not discounted again. Forecasts reprice unpaid future purchases after expiry, while paid orders keep their recorded amount. To obtain the exact refill quote, open Energy; its visible 24h quote has a 90-second lifetime. Historical PnL and order prices are unchanged.
+
+Builder quotes now use mining days × max(healthy base hash record, job floor) × current CRH per H/s/day. They are no longer base-dollar prices. Workshop, island and overclock boosts do not raise the record. Hall 11 has a 1,500 H/s floor; each power level uses the previous capacity as its floor. See `docs/economy-rules-2026-10-16.json`.
+
+The announced **25% token-purchase sale ends 17 October 2026 at 15:47 UTC** ([official announcement](https://x.com/ComputersRh/status/2110910849816633622)). Current game sale metadata takes priority. Estimates apply the discount once; already-discounted quotes are not discounted again. Forecasts reprice unpaid future purchases after expiry; paid orders retain their amount. Open Energy for its exact 24h refill quote, valid for 90 seconds. Historical PnL and payments are unchanged.
 
 ## Development: manual mini-farms
 
@@ -44,9 +52,13 @@ The game requires a qualifying 12h average holding of 25,000 CRH including stake
 
 Funding uses the selected wallet and accrued rewards only. The model keeps the holding reserve and a day of operating costs, uses prepaid energy before 12h refills, respects claim timing and reconciles wallet/claim balances. Inventory parts are consumed once; removed GPUs and PSUs remain available with zero resale proceeds. Future Social Pot wins, NFT purchases and resale value are excluded. A confirmed active NFT boost is included additively, capped at the first 500 base H/s (or a supplied game cap); it is not multiplied by the island bonus. Unknown unexplained island boosts block route recommendations. Stopped mining requires a fresh running snapshot after a manual restart. Native gas remains a separate funding requirement.
 
-Workshop boosts only the GPU contribution. Matching, the Hall cap and construction hash record still use healthy base hash. Routes use Steady; comparisons show Gamble/Wild probabilities with level floors/caps. Observed levels are preserved. Unknown boosted levels keep the observed boost in baseline income but receive no Workshop recommendation. Sequential timing is conservative; parallel manual upgrades may be faster.
+Only mining gains grow with PC upgrades; the observed referral remainder is held fixed in scenarios. If a mining-only hourly rate is absent, the model discloses an assumed 5% referral deduction and estimates that remainder.
 
-The four scenarios are assumptions: current conditions; pool drainage without inflows; recovery with competing-hash growth; and ±50% price swings. Today's budget remains fixed until the observed day reset; your modeled purchases replenish the next-day pool using the 60/20/20 split. Approximate fallback efficiency and the catalog date are shown. The verified starter subset dated 11 Oct 2026 is used until live shop metadata is available. Thin margins and incomplete stored-PC coverage are flagged. Workshop costs have no dollar minimum. Unique observed GPU-only boost matches may infer a level; active overclocks are never interpreted as Workshop levels. Search is bounded: **best route found** does not prove a global optimum.
+PC upgrades grow mining; the observed referral remainder stays fixed. When a mining-only rate is absent, the model discloses an assumed 5% referral deduction.
+
+Workshop boosts only the GPU contribution. Matching, the Hall cap and construction hash record still use healthy base hash. Routes use Steady; comparisons show Gamble/Wild probabilities with level floors/caps. Observed levels are preserved. Unknown boosted levels keep the observed boost in baseline income but receive no Workshop recommendation. Levels 0–20 are supported, up to +125% on the GPU share. A try costs 20% of a raw GPU day at Lv0, then 25%, including its current level bonus. Equal cards at the same level can upgrade in parallel batches; other groups and action types are modeled sequentially. Pending random outcomes require a new snapshot after completion.
+
+The four scenarios are assumptions: current conditions; pool drainage without inflows; recovery with competing-hash growth; and В±50% price swings. Today's budget remains fixed until the observed day reset; your modeled purchases replenish the next-day pool using the 60/20/20 split. Approximate fallback efficiency and the catalog date are shown. The verified starter subset dated 11 Oct 2026 is used until live shop metadata is available. Thin margins and incomplete stored-PC coverage are flagged. Workshop costs have no dollar minimum. Unique observed GPU-only boost matches may infer a level; active overclocks are never interpreted as Workshop levels. Search is bounded: **best route found** does not prove a global optimum.
 
 Press **Calculate** for a frozen result. Live updates never regenerate or erase the route. Each wallet's forecast is saved and exported; forecasts under old rules require an explicit recalculation; a failed recalculation preserves the previous successful result. Old planner forecasts remain in storage/exports, but the legacy model is not shown as a current recommendation.
 
